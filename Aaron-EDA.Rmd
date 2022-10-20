@@ -58,4 +58,73 @@ Summmary of the two regions annually
 ``` {r, echo=T}
 summary(eastcoast_annual[7:13])
 summary(westcoast_annual[7:13])
+xkablesummary(westcoast_annual[7:13])
 ```
+
+
+## West Coast Annual Novemeber 2010 Start and November 2016 End Histogram
+```{r}
+ggplot(westcoast_annual, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 70) + 
+    scale_y_continuous(breaks = c(50, 100,150, 200,250,300,350, 400, 450,500,550,600,650,700)) + 
+    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,12000,14000,16000))
+
+ggplot(westcoast_annual, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 70) + 
+    scale_y_continuous(breaks = c(50, 100,150, 200,250,300,350, 400, 450,500,550,600,650,700)) + 
+    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,12000,14000,16000))
+
+ggplot(westcoast_annual) + 
+    geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 70) + 
+    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 70) + 
+    scale_y_continuous(breaks = c(50, 100,150, 200,250,300,350, 400, 450,500,550,600,650,700)) + 
+    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,12000,14000,16000)) + 
+    labs(title = "Histogram of Rental Price Count West Coast")
+
+ezids::outlierKD2(westcoast_annual,westcoast_annual$November.2010, TRUE)
+ezids::outlierKD2(westcoast_annual,westcoast_annual$November.2016, TRUE)
+
+ggplot(eastcoast_annual) + 
+    geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
+    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) + 
+    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
+    xlim(c(500,4500)) + 
+    labs(title = "Histogram of Rental Price Count East Coast")
+```
+
+## East Coast Annual Novemeber 2010 Start and November 2016 End Histogram
+```{r}
+ggplot(eastcoast_annual, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) + 
+    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
+    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000))
+
+ggplot(eastcoast_annual, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 40) + 
+    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
+    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000))
+
+ggplot(eastcoast_annual) + 
+    geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
+    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) + 
+    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
+    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000)) + 
+    labs(title = "Histogram of Rental Price Count East Coast") 
+
+ezids::outlierKD2(eastcoast_annual,eastcoast_annual$November.2010, TRUE)
+ezids::outlierKD2(eastcoast_annual,eastcoast_annual$November.2016, TRUE)
+
+ggplot(eastcoast_annual) + 
+    geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
+    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) + 
+    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
+    xlim(c(500,3500)) + 
+    labs(title = "Histogram of Rental Price Count East Coast") 
+
+
+```
+
+
+## Boxplot of West Coast Zillow Rental Prices 2010-2016
+```{r}
+ggplot(westcoast_annual, aes(State, November.2010)) + geom_boxplot()
+ggplot(westcoast_annual, aes(State, November.2010)) + geom_boxplot() + ylim(c(500,3500))
+```
+
+
