@@ -4,11 +4,13 @@ author: "Aaron Rock"
 date: "2022-10-19"
 output: html_document
 ---
-get
 ```{r init, include=FALSE}
 # some of common options (and the defaults) are: 
 # include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
 library(ezids)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
 # knitr::opts_chunk$set(warning = F, results = "markup", message = F)
 knitr::opts_chunk$set(warning = F, results = "hide", message = F)
 options(scientific=T, digits = 3) 
@@ -52,13 +54,60 @@ westcoast_annual = westcoast_annual[-c(11,12,13,14,15,16,17,18,19,20,21)]
 westcoast_annual = westcoast_annual[-c(12,13,14,15,16,17,18,19,20,21,22)]
 westcoast_annual = westcoast_annual[-c(13,14,15,16,17,18,19,20,21,22,23)]
 westcoast_annual = westcoast_annual[-c(14,15)]
+
+westcoast = westcoast[-c(2,3,4,5,6)]
+
+
+## Find the difference between of rent price and add it as a column AND add average price of rent over the years column 
+eastcoast_annual <- eastcoast_annual %>%
+    mutate(Price.Diff = November.2016 - November.2010)
+
+westcoast_annual <- westcoast_annual %>%
+    mutate(Price.Diff = November.2016 - November.2010)
+
+eastcoast_annual <- eastcoast_annual %>%
+     mutate(Avg.Price = rowMeans(eastcoast_annual[7:13]))
+
+westcoast_annual <- westcoast_annual %>%
+     mutate(Avg.Price = rowMeans(westcoast_annual[7:13]))
 ```
 
-Summmary of the two regions annually
+
+
+
+## Clean Data of Outliers
+```{r,results='asis'}
+westcoast_annualClean = outlierKD2(westcoast_annual, November.2010, rm = TRUE)
+westcoast_annualClean = outlierKD2(westcoast_annualClean, November.2016, rm = TRUE)
+westcoast_annualClean = outlierKD2(westcoast_annualClean, Avg.Price, rm = TRUE)
+westcoast_annualClean = outlierKD2(westcoast_annualClean, Price.Diff, rm = TRUE)
+
+eastcoast_annualClean = outlierKD2(eastcoast_annual, November.2010, rm = TRUE)
+eastcoast_annualClean = outlierKD2(eastcoast_annualClean, November.2016, rm = TRUE)
+eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Avg.Price, rm = TRUE)
+eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Price.Diff, rm = TRUE)
+```
+
+## Transpose Data Correctly
+```{r, results='asis'}
+rownames(westcoast) = westcoast$City.Code
+westcoast = westcoast[c(-1)]
+westcoast = as.data.frame(t(westcoast))
+names(westcoast)<-str_replace_all(names(westcoast), c(" " = "" , "," = ""))
+head(westcoast)
+westcoast <- cbind(Date = rownames(westcoast), westcoast)
+rownames(westcoast) <- 1:nrow(westcoast)
+head(westcoast)
+```
+
+
+
+Summary of the two regions annually
 ``` {r, echo=T}
-summary(eastcoast_annual[7:13])
-summary(westcoast_annual[7:13])
-xkablesummary(westcoast_annual[7:13])
+summary(eastcoast_annual[7:15])
+summary(westcoast_annual[7:15])
+xkablesummary(westcoast_annual[7:15], title="West Coast Summary Annually")
+xkablesummary(eastcoast_annual[7:15], title="East Coast Summary Annually")
 ```
 ## Finding the Outliers to Help with Graphs
 ```{r, results='asis'}
@@ -75,95 +124,102 @@ min(outEast2016)
 ## West Coast Annual Novemeber 2010 Start and November 2016 End Histogram
 ```{r}
 library(ggplot2)
+ggplot(westcoast_annualClean, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 70) + 
+    labs(title = "Rental Price Count on the West Coast in November 2010", x = "Rental Prices", y = "Frequency")
+
 ggplot(westcoast_annual, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 70) + 
-    scale_y_continuous(breaks = c(50, 100,150, 200,250,300,350, 400, 450,500,550,600,650,700)) + 
-    scale_x_continuous(breaks = c(1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,           12000,14000,16000)) +
-    labs(title = "Histogram of Rental Price Count on the West Coast in November 2010", x = "Rental       Prices", y = "Frequency")
+    labs(title = "Rental Price Count on the West Coast in November 2010", x = "Rental Prices", y = "Frequency")
 
 ggplot(westcoast_annual, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 70) + 
-    scale_y_continuous(breaks = c(50, 100,150, 200,250,300,350, 400, 450,500,550,600,650,700)) +
-    scale_x_continuous(breaks = c(1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,           12000,14000,16000)) +
-    labs(title = "Histogram of Rental Price Count on the West Coast in November 2016", x = "Rental       Prices", y = "Frequency")
+    labs(title = "Rental Price Count on the West Coast in November 2016", x = "Rental Prices", y = "Frequency")
+
+ggplot(westcoast_annualClean, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 70) + 
+    labs(title = "Rental Price Count on the West Coast in November 2016", x = "Rental Prices", y = "Frequency")
 
 ggplot(westcoast_annual) + 
     geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 70) + 
-    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 70) + 
-    scale_y_continuous(breaks = c(50, 100,150, 200,250,300,350, 400, 450,500,550,600,650,700)) + 
-    scale_x_continuous(breaks = c(1000, 2000, 3000,4000, 5000, 6000, 7000, 8000, 
-    9000, 10000,12000,14000,16000)) + 
-    labs(title = "Histogram of Rental Price Count on the West Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
+    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 70) +
+    labs(title = "Rental Price Count on the West Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
 
-ezids::outlierKD2(westcoast_annual,westcoast_annual$November.2010, TRUE)
-ezids::outlierKD2(westcoast_annual,westcoast_annual$November.2016, TRUE)
-
-ggplot(westcoast_annual) + 
+ggplot(westcoast_annualClean) + 
     geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
     geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) + 
-    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
-    xlim(c(500,4500)) + 
-    labs(title = "Histogram of Rental Price Count on the West Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
+    labs(title = "Rental Price Count on the West Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
 ```
 
 ## East Coast Annual Novemeber 2010 Start and November 2016 End Histogram
 ```{r}
-ggplot(eastcoast_annual, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) + 
-    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
-    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000)) + 
-    labs(title = "Histogram of Rental Price Count on the East Coast from November 2010", x = "Rental Prices", y = "Frequency")
+ggplot(eastcoast_annual, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) +  
+    labs(title = "Rental Price Count on the East Coast from November 2010", x = "Rental Prices", y = "Frequency")
 
-ggplot(eastcoast_annual, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 40) + 
-    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
-    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000)) + 
-    labs(title = "Histogram of Rental Price Count on the East Coast from November 2016", x = "Rental Prices", y = "Frequency")
+ggplot(eastcoast_annualClean, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) +  
+    labs(title = "Rental Price Count on the East Coast from November 2010", x = "Rental Prices", y = "Frequency")
 
-ggplot(eastcoast_annual) + 
-    geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
-    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) + 
-    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
-    scale_x_continuous(breaks = c(1000,2000,3000,4000,5000,6000,7000,8000,9000)) + 
-    labs(title = "Histogram of Rental Price Count on the East Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
+ggplot(eastcoast_annual, aes(November.2016)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) +  
+    labs(title = "Rental Price Count on the East Coast from November 2010", x = "Rental Prices", y = "Frequency")
 
-ezids::outlierKD2(eastcoast_annual,eastcoast_annual$November.2010, TRUE)
-ezids::outlierKD2(eastcoast_annual,eastcoast_annual$November.2016, TRUE)
+ggplot(eastcoast_annualClean, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 40) +  
+    labs(title = "Rental Price Count on the East Coast from November 2016", x = "Rental Prices", y = "Frequency")
 
 ggplot(eastcoast_annual) + 
     geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
-    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) + 
-    scale_y_continuous(breaks = c(100, 200,300,400,500,600,700,800,900,1000)) + 
-    xlim(c(500,3500)) + 
-    labs(title = "Histogram of Rental Price Count on the East Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
+    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) +
+    labs(title = "Rental Price Count on the East Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
+
+
+ggplot(eastcoast_annualClean) + 
+    geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
+    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) +
+    labs(title = "Rental Price Count on the East Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
 
 
 ```
 
-
 ## Boxplot of West Coast Zillow Rental Prices 2010-2016
 ```{r}
 ggplot(westcoast_annual, aes(State, November.2010)) + geom_boxplot()
-ggplot(westcoast_annual, aes(State, November.2010)) + geom_boxplot() + ylim(c(500,3141))
-ggplot(westcoast_annual, aes(x=November.2010)) + geom_boxplot(outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + xlim(c(500,3141))
+ggplot(westcoast_annualClean, aes(State, November.2010)) + geom_boxplot()
+ggplot(westcoast_annualClean, aes(x=November.2010)) + geom_boxplot(outlier.shape = 9, outlier.size = 2, outlier.color = "blue")
 ggplot(westcoast_annual, aes(State, November.2016)) + geom_boxplot()
-ggplot(westcoast_annual, aes(State, November.2016)) + geom_boxplot() + ylim(c(500,4142))
-ggplot(westcoast_annual, aes(x=November.2016)) + geom_boxplot(outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + xlim(c(500,4142))
+ggplot(westcoast_annualClean, aes(State, November.2016)) + geom_boxplot()
+ggplot(westcoast_annualClean, aes(x=November.2016)) + geom_boxplot(outlier.shape = 9, outlier.size = 2, outlier.color = "blue")
 ```
 
 ## Boxplot of East Coast Zillow Rental Prices 2010-2016
 ```{r}
 ggplot(eastcoast_annual, aes(State, November.2010)) + geom_boxplot()
-ggplot(eastcoast_annual, aes(State, November.2010)) + geom_boxplot() + ylim(c(500,2506))
-ggplot(eastcoast_annual, aes(x=November.2010)) + geom_boxplot(outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + xlim(c(500,2506))
+ggplot(eastcoast_annualClean, aes(State, November.2010)) + geom_boxplot()
+ggplot(eastcoast_annualClean, aes(x=November.2010)) + geom_boxplot(outlier.shape = 9, outlier.size = 2, outlier.color = "red")
 ggplot(eastcoast_annual, aes(State, November.2016)) + geom_boxplot()
-ggplot(eastcoast_annual, aes(State, November.2016)) + geom_boxplot() + ylim(c(500,2843))
-ggplot(eastcoast_annual, aes(x=November.2016)) + geom_boxplot(outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + xlim(c(500,2843))
+ggplot(eastcoast_annualClean, aes(State, November.2016)) + geom_boxplot()
+ggplot(eastcoast_annualClean, aes(x=November.2016)) + geom_boxplot(outlier.shape = 9, outlier.size = 2, outlier.color = "red")
 ```
+
 ## Scatter plot of West Coast
 ```{r, results='asis'}
 ggplot(westcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point()
-ggplot(westcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + xlim(c(500,3141)) + ylim(c(500,4142))
+ggplot(westcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point()
 ```
 
 ## Scatter plot of East Coast
 ```{r, results='asis'}
 ggplot(eastcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point()
-ggplot(eastcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + xlim(c(500,2506)) + ylim(c(500,2843))
+ggplot(eastcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point()
 ```
+
+## QQ Plots
+```{r, results='asis'}
+qqnorm(westcoast_annualClean$November.2010)
+qqline(westcoast_annualClean$November.2010)
+
+qqnorm(westcoast_annualClean$November.2016)
+qqline(westcoast_annualClean$November.2016)
+
+qqnorm(eastcoast_annualClean$November.2010)
+qqline(eastcoast_annualClean$November.2010)
+
+qqnorm(eastcoast_annualClean$November.2016)
+qqline(eastcoast_annualClean$November.2016)
+
+```
+
