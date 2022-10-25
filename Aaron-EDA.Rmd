@@ -220,6 +220,4 @@ qqline(eastcoast_annualClean$November.2010)
 
 qqnorm(eastcoast_annualClean$November.2016)
 qqline(eastcoast_annualClean$November.2016)
-
 ```
-
