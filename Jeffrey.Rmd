@@ -20,6 +20,9 @@ output:
 library(ezids)
 library(ggplot2)
 library(tidyverse)
+library(MASS)
+library(reshape2)
+library(reshape)
 
 # knitr::opts_chunk$set(warning = F, results = "markup", message = F)
 knitr::opts_chunk$set(warning = F, results = "hide", message = F)
@@ -52,21 +55,155 @@ Turn date into a column.
 zillow_focus <- cbind(Date = rownames(zillow_focus), zillow_focus)
 rownames(zillow_focus) <- 1:nrow(zillow_focus)
 head(zillow_focus)
-zillow_focus <- cbind(Index = rownames(zillow_focus), zillow_focus)
-rownames(zillow_focus) <- 1:nrow(zillow_focus)
-head(zillow_focus)
 ```
 
-I'm not sure if histograms would be meaningful in the context of my problem, but here's some.
+Converting strings to dates and convering to %d/%m/%Y form with 01 for %d
 
 ```{r}
-ggplot(zillow_focus, aes(x=NewYork)) + geom_histogram(bins=10)
+zillow_focus_test = zillow_focus
+zillow_focus_test$Date <- str_replace_all(zillow_focus_test$Date, "[.]", " ")
+zillow_focus_test$Month <- str_extract(zillow_focus_test$Date, "(\\w+)")
+zillow_focus_test$Year <- str_extract(zillow_focus_test$Date, "\\w+$")
+tmp_date = paste(match(zillow_focus_test$Month, month.name), zillow_focus_test$Year, sep="/")
+tmp_date = paste("01", tmp_date, sep="/")
+tmp_date = as.Date(tmp_date, "%d/%m/%Y")
+zillow_focus$Date <- tmp_date
+str(zillow_focus)
+```
+
+Add a total column, not including New York (which has NAs)
+```{r}
+zillow_total = zillow_focus
+zillow_total$Total <- rowSums(zillow_total[3:14])
+zillow_total
+```
+
+Line plots of time series, one with only 
+
+```{r}
+ggplot(zillow_total, aes(x=Date, y=Total)) + geom_point() + geom_line()
+```
+
+Melt the ggplot by the cities
+```{r}
+zillow_melt <- melt(zillow_focus, id = "Date")
+names(zillow_melt)[2] <- "City"
+names(zillow_melt)[3] <- "Prices"
+zillow_melt
+```
+
+I'm not sure if histograms would be meaningful in the context of my part, but here's one of all the cities melted together, ignoring New York again. We can do more if you guys believe it's necessary. There is a huge skew because the bigger/more expensive cities chosen would have higher rent prices due to a difference in the cost of living.
+I'll also do the Mean/Median/Quartiles of the overall plots here.
+
+```{r}
+ggplot(zillow_melt, aes(x=Prices, na.rm=TRUE)) + geom_histogram(binwidth=300)
+ggplot(zillow_melt, aes(x=Prices, na.rm=TRUE)) + geom_boxplot()
+summary(zillow_melt$Prices)
+```
+
+Lines of the time series over their changes.
+```{r}
+ggplot(zillow_melt, aes(x=Date, y=Prices, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+```
+
+Find the first order change
+```{r}
+zillow_change <- as.data.frame(lapply(zillow_focus[2:14], diff, lag=1))
+zillow_focus$Date[2:75]
+zillow_change$Date <- zillow_focus$Date[2:75]
+zillow_change <- zillow_change %>% dplyr::select(Date, everything())
+zillow_change
+```
+Melt, and line graph of the changes for each city.
+The graph is kind of hard to visualize, but it looks like San Francisco had a 
+```{r}
+zillow_cmelt <- melt(zillow_change, id = "Date")
+names(zillow_cmelt)[2] <- "City"
+names(zillow_cmelt)[3] <- "PriceChange"
+ggplot(zillow_cmelt, aes(x=Date, y=PriceChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+```
+
+Cumulative change, to make the trends more clear in respect to each other
+```{r}
+zillow_cumulative <- as.data.frame(cumsum(zillow_change[2:14]))
+zillow_focus$Date[2:75]
+zillow_cumulative$Date <- zillow_focus$Date[2:75]
+zillow_cumulative <- zillow_cumulative %>% dplyr::select(Date, everything())
+zillow_cumulative
+```
+
+Another graph. San Francisco had the greatest change, while Seattle had the second largest. Detroit had the most negative change, falling below 0 overall.
+```{r}
+zillow_cumumelt <- melt(zillow_cumulative, id = "Date")
+names(zillow_cumumelt)[2] <- "City"
+names(zillow_cumumelt)[3] <- "CumulativePriceChange"
+ggplot(zillow_cumumelt, aes(x=Date, y=CumulativePriceChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+```
+
+Find the first order change as a Percent
+```{r}
+zillow_proportion <- zillow_change[2:14]/zillow_focus[c(2:75), 2:14]*100
+zillow_proportion$Date <- zillow_focus$Date[2:75]
+zillow_proportion <- zillow_proportion %>% dplyr::select(Date, everything())
+zillow_proportion
+```
+
+It looks like Richmond has a pretty varied proportional change. It's still hard to make anything out of it, so let's move to the cumulative proportional change again.
+```{r}
+zillow_pmelt <- melt(zillow_proportion, id = "Date")
+names(zillow_pmelt)[2] <- "City"
+names(zillow_pmelt)[3] <- "ProportionChange"
+ggplot(zillow_pmelt, aes(x=Date, y=ProportionChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
 ```
 
 
+Quick histogram of the distribution of proportional changes. The proportional changes over time look pretty normal taken together as a whole, with maybe a slight right skew, which makes sense as we would guess that rent prices should generally increase over time with inflation and what not. Remember, these changes are in percentages. There are outliers on both sides of the boxplot, which matches what we see in the histogram. Here are the measures of variance and qqnorm plots as well
+```{r}
+ggplot(zillow_pmelt, aes(x=ProportionChange, na.rm=TRUE)) + geom_histogram() + labs(x = "Proportional Change in Percentages")
+ggplot(zillow_pmelt, aes(x=ProportionChange, na.rm=TRUE)) + geom_boxplot()
+qqnorm(zillow_pmelt$ProportionChange)
+summary(zillow_pmelt$ProportionChange)
+var(zillow_pmelt$ProportionChange, na.rm=TRUE)
+sd(zillow_pmelt$ProportionChange, na.rm=TRUE)
+```
 
-We will probably have to pivot the file a bit, since the dates are columns.
+Just making the cumulative melt for proportions now. We will drop New York before plotting the values, as there are too many NAs.
 
-Should we plot time series of interested areas, say NYC and LA, or just stick to states and compare each to each other? How should we measure greatest change, percent differences or measured differences?
+```{r}
+zillow_pdrop <- zillow_proportion[3:14]
+zillow_pcumulative <- as.data.frame(cumsum(zillow_pdrop))
+zillow_pcumulative$Date <- zillow_focus$Date[2:75]
+zillow_pcumulative <- zillow_pcumulative %>% dplyr::select(Date, everything())
+zillow_pcumulative
+```
 
-Should we take a histo and boxplots of the data as a  whole?
+We will drop New York before plotting the values, as there are too many NAs.
+Now, it looks like the proportional change of Seattle is a bit higher than San Francisco, and Richmond is up there too. Detroit still has the most negative proportional change overall.
+
+```{r}
+zillow_pcumumelt <- melt(zillow_pcumulative, id = "Date")
+names(zillow_pcumumelt)[2] <- "City"
+names(zillow_pcumumelt)[3] <- "CumulativeProportionChange"
+ggplot(zillow_pcumumelt, aes(x=Date, y=CumulativeProportionChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+```
+
+Box plot of each city's proportional change. As expected, San Francisco and Roanoke seem to have the largest ranges and variances. We are also dropping New York again.
+```{r}
+zillow_prodrop = zillow_proportion[-2]
+zillow_pdmelt <- melt(zillow_prodrop, id = "Date")
+names(zillow_pdmelt)[2] <- "City"
+names(zillow_pdmelt)[3] <- "ProportionChange"
+ggplot(zillow_pdmelt, aes(x=City, y=ProportionChange, color=City, na.rm=TRUE)) + geom_boxplot(outlier.shape=8, outlier.size=4)
+```
+
+
+We will now anova test the proportional changes against each other, and see if the average change between years is different. Since we have a p-value less than our alpha, there are significant differences in changes, and thus, we look at the Post-hoc Tukey HSD. It looks like the pairs that have significantly different average proportional changes are [Detroit-LosAngeles], [Roanoke-LosAngeles], [SanFrancisco-Chicago], [Seattle-Chicago], [Richmond-Chicago], [Detroit-Houston], [Seattle-Philadelphia], [SanFrancisco-LasVegas], [Seattle-LasVegas], [Richmond-LasVegas], [Detroit-SanFrancisco], [Roanoke-SanFrancisco], [Seattle-Detroit], [Washington-Detroit], [Richmond-Detroit], [Baltimore-Seattle], [Roanoke-Seattle], and finally, [Roanoke-Richmond].
+
+```{r}
+pm_anova = aov(zillow_pdmelt$ProportionChange ~ zillow_pdmelt$City)
+summary(pm_anova)
+tukeyAoV <- TukeyHSD(pm_anova)
+tukeyAoV
+```
+
+
