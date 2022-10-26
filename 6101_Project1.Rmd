@@ -198,8 +198,6 @@ ggplot(eastcoast_annualClean) +
     geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
     geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) +
     labs(title = "Rental Price Count on the East Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
-
-
 ```
 
 ## Boxplot of West Coast Zillow Rental Prices 2010-2016
@@ -319,6 +317,7 @@ tmp_date = paste(match(zillow_focus_test$Month, month.name), zillow_focus_test$Y
 tmp_date = paste("01", tmp_date, sep="/")
 tmp_date = as.Date(tmp_date, "%d/%m/%Y")
 zillow_focus$Date <- tmp_date
+head(zillow_focus)
 str(zillow_focus)
 ```
 
@@ -334,7 +333,7 @@ head(zillow_total)
 ## Line plot of total
 Line plots of time series, one with only time
 ```{r}
-ggplot(zillow_total, aes(x=Date, y=Total)) + geom_point() + geom_line()
+ggplot(zillow_total, aes(x=Date, y=Total)) + geom_point() + geom_line() + labs(x="Time", y="Total Rent Prices", title="Plot of City Rent Change over Time")
 ```
 
 
@@ -358,23 +357,27 @@ summary(zillow_melt$Prices)
 
 Lines of the time series over their changes.
 ```{r}
-ggplot(zillow_melt, aes(x=Date, y=Prices, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+ggplot(zillow_melt, aes(x=Date, y=Prices, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line() + labs(x="Time", y="Rent Price", title="Plot of City Rent Prices over Time")
 ```
 
-Find the first order change
+
+## First Order change plots
+Find the first order change, difference between each month
 ```{r, results="markup"}
 zillow_change <- as.data.frame(lapply(zillow_focus[2:14], diff, lag=1))
 zillow_change$Date <- zillow_focus$Date[2:75]
 zillow_change <- zillow_change %>% dplyr::select(Date, everything())
 head(zillow_change)
 ```
+
+
 Melt, and line graph of the changes for each city.
-The graph is kind of hard to visualize, but it looks like San Francisco had a 
+The graph is kind of hard to visualize, but it looks like San Francisco had the highest change from time to time.
 ```{r}
 zillow_cmelt <- melt(zillow_change, id = "Date")
 names(zillow_cmelt)[2] <- "City"
 names(zillow_cmelt)[3] <- "PriceChange"
-ggplot(zillow_cmelt, aes(x=Date, y=PriceChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+ggplot(zillow_cmelt, aes(x=Date, y=PriceChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line() + labs(x="Time", y="Price Change", title="Plot of City Rent Change over Time")
 ```
 
 Cumulative change, to make the trends more clear in respect to each other
@@ -385,14 +388,17 @@ zillow_cumulative <- zillow_cumulative %>% dplyr::select(Date, everything())
 head(zillow_cumulative)
 ```
 
-Another graph. San Francisco had the greatest change, while Seattle had the second largest. Detroit had the most negative change, falling below 0 overall.
+
+Another graph, this time of cumulative change. San Francisco had the greatest change, while Seattle had the second largest. Detroit had the most negative change, falling below 0 overall.
 ```{r}
 zillow_cumumelt <- melt(zillow_cumulative, id = "Date")
 names(zillow_cumumelt)[2] <- "City"
 names(zillow_cumumelt)[3] <- "CumulativePriceChange"
-ggplot(zillow_cumumelt, aes(x=Date, y=CumulativePriceChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+ggplot(zillow_cumumelt, aes(x=Date, y=CumulativePriceChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line() + labs(x="Time", y="Cumulative Change", title="Plot of Cumulative City Rent Change over Time")
 ```
 
+
+## First Order change, as a percentage proportion of the total rent
 Find the first order change as a Percent
 ```{r, results="markup"}
 zillow_proportion <- zillow_change[2:14]/zillow_focus[c(2:75), 2:14]*100
@@ -406,7 +412,7 @@ It looks like Richmond has a pretty varied proportional change. It's still hard 
 zillow_pmelt <- melt(zillow_proportion, id = "Date")
 names(zillow_pmelt)[2] <- "City"
 names(zillow_pmelt)[3] <- "ProportionChange"
-ggplot(zillow_pmelt, aes(x=Date, y=ProportionChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+ggplot(zillow_pmelt, aes(x=Date, y=ProportionChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line() + labs(x="Time", y="Proportional Change", title="Plot of City Rent Change over Time")
 ```
 
 
@@ -437,7 +443,7 @@ Now, it looks like the proportional change of Seattle is a bit higher than San F
 zillow_pcumumelt <- melt(zillow_pcumulative, id = "Date")
 names(zillow_pcumumelt)[2] <- "City"
 names(zillow_pcumumelt)[3] <- "CumulativeProportionChange"
-ggplot(zillow_pcumumelt, aes(x=Date, y=CumulativeProportionChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line()
+ggplot(zillow_pcumumelt, aes(x=Date, y=CumulativeProportionChange, group=City, color=City, na.rm=TRUE)) + geom_point() + geom_line() + labs(x="Time", y="Cumu. Prop. Change", title="Plot of Cumulative City Rent Change over Time")
 ```
 
 Box plot of each city's proportional change. As expected, San Francisco and Roanoke seem to have the largest ranges and variances. We are also dropping New York again.
@@ -450,8 +456,8 @@ ggplot(zillow_pdmelt, aes(x=City, y=ProportionChange, color=City, na.rm=TRUE)) +
 ```
 
 
+## Anova Test and Post-hoc Tukey HSD
 We will now anova test the proportional changes against each other, and see if the average change between years is different. Since we have a p-value less than our alpha, there are significant differences in changes, and thus, we look at the Post-hoc Tukey HSD. It looks like the pairs that have significantly different average proportional changes are [Detroit-LosAngeles], [Roanoke-LosAngeles], [SanFrancisco-Chicago], [Seattle-Chicago], [Richmond-Chicago], [Detroit-Houston], [Seattle-Philadelphia], [SanFrancisco-LasVegas], [Seattle-LasVegas], [Richmond-LasVegas], [Detroit-SanFrancisco], [Roanoke-SanFrancisco], [Seattle-Detroit], [Washington-Detroit], [Richmond-Detroit], [Baltimore-Seattle], [Roanoke-Seattle], and finally, [Roanoke-Richmond].
-
 ```{r, results="markup"}
 pm_anova = aov(zillow_pdmelt$ProportionChange ~ zillow_pdmelt$City)
 summary(pm_anova)
