@@ -35,22 +35,23 @@ options(scientific=T, digits = 3)
 # use scipen=999 to prevent scientific notation at all times
 ```
 
-Just going to copy and paste our RMD files together, we can cut down on it later
-
+## Import the data
 ```{r}
 #First, load the file
 zillow = data.frame(read.csv("price.csv"))
 head(zillow)
 ```
 
-Remove blank pricing data
+## Remove blank pricing data
 ``` {r}
-# Remove empty rows
+# Remove empty rows, NA's are only present if no data was collected for the location
 zillow = na.omit(zillow)
 ```
 
-Subset the Zillow data into east coast and west coast and annual subsets of the regions.
+## Subset the Zillow data into east coast and west coast and annual subsets of the regions.
 ``` {r}
+# going through and discarding states that are not defined by the Uited States as West or East coast states
+
 eastcoast = subset(zillow, State == 'CT' | State == 'NY' | State == 'VA' | State == 'FL' | State == 'NJ' | State == 'NC' |State == 'SC' | State == 'GA' | State == 'DE' | State == 'MA' | State == 'MD' | State == 'ME' | State == 'RI' | State == 'NH')
 eastcoast_annual = eastcoast[,c(1:81)]
 eastcoast_annual = eastcoast_annual[-c(8,9,10,11,12,13,14,15,16,17,18)]
@@ -79,7 +80,11 @@ westAnn = westAnn[-c(2,3,4,5,6)]
 
 eastAnn = eastcoast_annual
 eastAnn = eastAnn[-c(2,3,4,5,6)]
-## Find the difference between of rent price and add it as a column AND add average price of rent over the years column 
+```
+
+## Find the difference between of rent price and add it as a column AND add average price of rent over the years column
+```{r}
+# use dplyr package to create new columns Price.Diff and Avg.Price
 eastcoast_annual <- eastcoast_annual %>%
     mutate(Price.Diff = November.2016 - November.2010)
 
@@ -98,6 +103,7 @@ westcoast_annual <- westcoast_annual %>%
 
 ## Clean Data of Outliers
 ```{r,results='asis'}
+# clean the data
 westcoast_annualClean = outlierKD2(westcoast_annual, November.2010, rm = TRUE)
 westcoast_annualClean = outlierKD2(westcoast_annualClean, November.2016, rm = TRUE)
 westcoast_annualClean = outlierKD2(westcoast_annualClean, Avg.Price, rm = TRUE)
@@ -110,7 +116,7 @@ eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Price.Diff, rm = TRUE)
 ```
 
 ## Transpose Data Correctly
-```{r, results='asis'}
+```{r}
 rownames(westAnn) = westAnn$City.Code
 westAnn = westAnn[c(-1)]
 westAnn = as.data.frame(t(westAnn))
@@ -131,16 +137,21 @@ head(eastAnn)
 
 
 
-Summary of the two regions annually
+## Summary of the two regions annually
 ``` {r, echo=T}
+# getting the summaries to view basic stats of the data
 summary(eastcoast_annual[7:15])
 summary(westcoast_annual[7:15])
 xkablesummary(westcoast_annual[7:15], title="West Coast Summary Annually")
 xkablesummary(eastcoast_annual[7:15], title="East Coast Summary Annually")
+
+xkablesummary(westcoast_annual[c(7,10,13:15)], title="West Coast Summary Annually")
+xkablesummary(eastcoast_annual[c(7,10,13:15)], title="East Coast Summary Annually")
 ```
 
 ## Finding the Outliers to Help with Graphs
 ```{r}
+# checking outliers
 outWest2010 <- boxplot.stats(westcoast_annual$November.2010)$out
 outWest2016 <- boxplot.stats(westcoast_annual$November.2016)$out
 outEast2010 <- boxplot.stats(eastcoast_annual$November.2010)$out
@@ -242,14 +253,14 @@ ggplot(eastcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="blue",
 
 ## Scatter plot of West Coast
 ```{r, results='asis'}
-ggplot(westcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="West Coast Scatterplot between November 2010 and November 2016 with Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
-ggplot(westcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="West Coast Scatterplot between November 2010 and November 2016 without Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
+ggplot(westcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="West Coast November 2010 and November 2016 with Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
+ggplot(westcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="West Coast November 2010 and November 2016 without Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
 ```
 
 ## Scatter plot of East Coast
 ```{r, results='asis'}
-ggplot(eastcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="East Coast Scatterplot between November 2010 and November 2016 with Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
-ggplot(eastcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="East Coast Scatterplot between November 2010 and November 2016 without Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
+ggplot(eastcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="East Coast November 2010 and November 2016 with Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
+ggplot(eastcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="East Coast November 2010 and November 2016 without Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
 ```
 
 ## QQ Plots without Outliers
