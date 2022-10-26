@@ -11,6 +11,8 @@ library(ezids)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
+install.packages("matrixStats")
+library(matrixStats)
 # knitr::opts_chunk$set(warning = F, results = "markup", message = F)
 knitr::opts_chunk$set(warning = F, results = "hide", message = F)
 options(scientific=T, digits = 3) 
@@ -57,7 +59,11 @@ westcoast_annual = westcoast_annual[-c(14,15)]
 
 westcoast = westcoast[-c(2,3,4,5,6)]
 
+westAnn = westcoast_annual
+westAnn = westAnn[-c(2,3,4,5,6)]
 
+eastAnn = eastcoast_annual
+eastAnn = eastAnn[-c(2,3,4,5,6)]
 ## Find the difference between of rent price and add it as a column AND add average price of rent over the years column 
 eastcoast_annual <- eastcoast_annual %>%
     mutate(Price.Diff = November.2016 - November.2010)
@@ -90,14 +96,22 @@ eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Price.Diff, rm = TRUE)
 
 ## Transpose Data Correctly
 ```{r, results='asis'}
-rownames(westcoast) = westcoast$City.Code
-westcoast = westcoast[c(-1)]
-westcoast = as.data.frame(t(westcoast))
-names(westcoast)<-str_replace_all(names(westcoast), c(" " = "" , "," = ""))
-head(westcoast)
-westcoast <- cbind(Date = rownames(westcoast), westcoast)
-rownames(westcoast) <- 1:nrow(westcoast)
-head(westcoast)
+rownames(westAnn) = westAnn$City.Code
+westAnn = westAnn[c(-1)]
+westAnn = as.data.frame(t(westAnn))
+names(westAnn)<-str_replace_all(names(westAnn), c(" " = "" , "," = ""))
+westAnn <- cbind(Date = rownames(westAnn), westAnn)
+rownames(westAnn) <- 1:nrow(westAnn)
+head(westAnn)
+
+
+rownames(eastAnn) = eastAnn$City.Code
+eastAnn = eastAnn[c(-1)]
+eastAnn = as.data.frame(t(eastAnn))
+names(eastAnn)<-str_replace_all(names(eastAnn), c(" " = "" , "," = ""))
+eastAnn <- cbind(Date = rownames(eastAnn), eastAnn)
+rownames(eastAnn) <- 1:nrow(eastAnn)
+head(eastAnn)
 ```
 
 
@@ -221,3 +235,33 @@ qqline(eastcoast_annualClean$November.2010)
 qqnorm(eastcoast_annualClean$November.2016)
 qqline(eastcoast_annualClean$November.2016)
 ```
+
+
+## Format Date
+```{r, results='asis'}
+westAnn$Date = gsub('\\.',' ',westAnn$Date)
+westAnn <- westAnn %>%
+     mutate(Avg.Price = rowMeans(westAnn[2:1222]))
+westAnn$Max = rowMaxs(as.matrix(westAnn[2:1222]))
+westAnn$Min = rowMins(as.matrix(westAnn[2:1222]))
+ggplot(westAnn, aes(Date, Avg.Price)) + geom_point() + labs(title="Average Price of the Years on the West Coast")
+
+
+eastAnn$Date = gsub('\\.',' ',eastAnn$Date)
+eastAnn <- eastAnn %>%
+     mutate(Avg.Price = rowMeans(eastAnn[2:3989]))
+eastAnn$Max = rowMaxs(as.matrix(eastAnn[2:3989]))
+eastAnn$Min = rowMins(as.matrix(eastAnn[2:3989]))
+ggplot(eastAnn, aes(Date, Avg.Price)) + geom_point() + labs(title="Average Price of the Years on the East Coast")
+
+
+
+westAnnAvg = westAnn[-c(2:1222)]
+eastAnnAvg = eastAnn[-c(2:3989)]
+```
+
+
+
+
+
+
