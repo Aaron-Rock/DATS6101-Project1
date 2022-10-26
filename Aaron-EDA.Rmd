@@ -261,7 +261,9 @@ eastAnnAvg = eastAnn[-c(2:3989)]
 ```
 
 
-
-
-
-
+## Z Test of First and Last Month of East and  West Coast
+```{r,results='asis'}
+loadPkg("BSDA") # for z.test
+ttest99 = t.test(x=westcoast_annualClean$November.2010)
+ttest99
+```
