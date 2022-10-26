@@ -1,0 +1,63 @@
+---
+title: " Project 1"
+author: "Sanchit Vijay"
+date: "2022-10-19"
+output: html_document
+---
+```{r init, include=FALSE}
+# some of common options (and the defaults) are: 
+# include=T, eval=T, echo=T, results='hide'/'asis'/'markup',..., collapse=F, warning=T, message=T, error=T, cache=T, fig.width=6, fig.height=4, fig.dim=c(6,4) #inches, fig.align='left'/'center','right', 
+library(ezids)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+# knitr::opts_chunk$set(warning = F, results = "markup", message = F)
+knitr::opts_chunk$set(warning = F, results = "hide", message = F)
+options(scientific=T, digits = 3) 
+# options(scipen=9, digits = 3) 
+# ‘scipen’: integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation.  Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than ‘scipen’ digits wider.
+# use scipen=999 to prevent scientific notation at all times
+```
+
+
+```{r, results='markup'}
+#First, load the file
+zillow = data.frame(read.csv("price.csv"))
+head(zillow)
+```
+```{r, results='markup'}
+# colSums(is.na(zillow))
+# summary(zillow)
+zillow = na.omit(zillow)
+# colSums(is.na(zillow))
+```
+
+```{r, results='markup', fig.align="center", fig.width = 5}
+options(repr.plot.width=20, repr.plot.height=10)
+
+ggplot(zillow, aes(x=State)) + geom_bar(colour="blue", fill="purple", alpha=0.6)
+```
+
+
+```{r, results='markup'}
+library("zoo")
+
+values=head(zillow,10)
+values=data.frame(t(as.matrix(zillow[,7:81])))
+
+date <- seq(as.Date("2010/11/01"), as.Date("2017/01/31"),"month")
+date <- as.yearmon(date)
+ts=zoo(values,order.by = date)
+values=fortify(ts)
+values$Index=as.Date(values$Index)
+
+# autoplot(ts,facet=NULL)+
+#   theme_minimal()+
+#   labs(x="Time",y="Price")
+
+ggplot(values, aes(x=))
+
+```
+
+
+
