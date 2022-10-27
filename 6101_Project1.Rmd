@@ -23,10 +23,12 @@ library(ezids)
 library(ggplot2)
 library(tidyverse)
 library(MASS)
-library(reshape2)
 library(reshape)
 library(dplyr)
 library(matrixStats)
+library(zoo)
+library(ggfortify)
+library(reshape2)
 # knitr::opts_chunk$set(warning = F, results = "markup", message = F)
 knitr::opts_chunk$set(warning = F, results = "hide", message = F)
 options(scientific=T, digits = 3) 
@@ -532,5 +534,136 @@ summary(pm_anova)
 tukeyAoV <- TukeyHSD(pm_anova)
 tukeyAoV
 ```
+
+## State wise countplot  
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
+ggplot(zillow, aes(x=State)) + geom_bar(colour="blue", fill="purple", alpha=0.6)
+```
+
+## Time-series plot for top 10 cities  
+```{r, results='markup', fig.align="center", fig.width = 12, fig.height=5}
+num_city = 10
+values=head(zillow, num_city, )
+values=data.frame(t(as.matrix(values[,7:81])))
+colnames(values)=zillow[1:num_city,2]
+
+date = seq(as.Date("2010/11/01"), as.Date("2017/01/31"), "month")
+date = as.yearmon(date)
+ts=zoo(values,order.by = date)
+values=fortify(ts)
+values$Index=as.Date(values$Index)
+
+autoplot(ts,facets = NULL)+ geom_point(size=0.5) +
+  theme_minimal()+
+  labs(x="Time",y="Price")
+
+```
+
+## Pricing Distribution for California (Box plots)
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
+price = gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
+
+ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
+  geom_boxplot(aes(x = fct_rev(Metro), 
+                   y = as.numeric(Price)), fill="#FF9999", color="#56B4E9", outlier.size = 0.5) +
+  labs(x = "Metro Area", y = "Price", #note these are opposite because I use coord_flip to flip the axes
+       colour = "#E0E0E0") +
+  coord_flip()
+
+```
+
+## Pricing Distribution for Philadelphia (Box plots)
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
+price = gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
+
+ggplot(price[price$State == "PA" & !is.na(price$Metro),]) +
+  geom_boxplot(aes(x = fct_rev(Metro), 
+                   y = as.numeric(Price)), fill="#9999CC", color="#66CC99", outlier.size = 0.5) +
+  labs(x = "Metro Area", y = "Price", #note these are opposite because I use coord_flip to flip the axes
+       colour = "#E0E0E0") +
+  coord_flip()
+
+```
+
+## Dallas county rent prices (point plot across time)
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 7}
+# price
+ggplot(price[price$County == "Dallas" & !is.na(price$City),], 
+               aes(y = fct_rev(City), x = Price)) +
+  labs(title = "Zillow | Dallas County Rent Prices",
+       subtitle = "2010 - 2017", 
+       x = "Price", y = "Dallas County", 
+       colour = "Time") +
+  geom_point(shape = 20, alpha = 0.4, size = 3, aes(color = Month)) +
+  scale_color_discrete(l = 45, h = c(30, 330)) 
+
+```
+
+## Los Angeles county rent prices (point plot across time)
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 15}
+ggplot(price[price$County == "Los Angeles" & !is.na(price$City),], 
+               aes(y = fct_rev(City), x = Price)) +
+  labs(title = "Zillow | Los Angeles County Rent Prices",
+       subtitle = "2010 - 2017", 
+       x = "Price", y = "LA County", 
+       colour = "Time") +
+  geom_point(shape = 16, alpha = 0.4, size = 3, aes(color = Month)) +
+  scale_colour_viridis_d()
+  # scale_colour_gradientn(colours=rainbow(4))
+
+```
+
+## Average rent pricing with minimum maximum deviation
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 8}
+# Create variable of numeric year
+price$Year = as.character(price$Month)
+price$Year = as.numeric(substr(price$Month, nchar(as.character(price$Month)) - 3, nchar(as.character(price$Month))))
+
+# Calculate range for each state, by year
+states = price[!is.na(price$State),] %>%
+  group_by(State, Year) %>%
+  summarise(Mean = round(mean(Price),0),
+            Min = min(Price),
+            Max = max(Price)) 
+
+# Plot change over time, by state.
+ggplot(states[!is.na(states$Mean),], 
+                aes(x = fct_rev(State),
+                    y = as.numeric(Mean))) +
+  labs(title = "Zillow | Mean US Rent Prices",
+       subtitle = "2010 - 2017", 
+       x = "States", y = "Average Price", 
+       colour = "#E0E0E0") +
+  geom_point(shape = 20, alpha = 0.8, size = 5, aes(color = Year)) +
+  scale_color_continuous(aes(guide = ""), low = "black", high = "purple") + 
+  guides(fill = guide_colourbar(barwidth = 0.7, barheight = 15)) +
+  coord_flip() 
+
+```
+
+## Hex plot with number of counties for top 5 cities
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height=12}
+library("zoo")
+library(ggfortify)
+library(reshape2)
+
+num_city = 5
+values=head(zillow, num_city, )
+values=data.frame(t(as.matrix(values[,7:81])))
+colnames(values)=zillow[1:num_city,2]
+
+date = seq(as.Date("2010/11/01"), as.Date("2017/01/31"), "month")
+date = as.yearmon(date)
+ts=zoo(values,order.by = date)
+values=fortify(ts)
+values$Index=as.Date(values$Index)
+
+autoplot(ts,facets = NULL)+ geom_hex(size=1.5, alpha=0.7) + scale_fill_viridis_c() + 
+  guides(fill = guide_colourbar(barwidth = 0.7, barheight = 15)) +
+  theme_minimal()+ 
+  labs(x="Time",y="Price")
+```
+
+
 
 

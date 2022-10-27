@@ -73,13 +73,27 @@ ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
   coord_flip()
 
 ```
+
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
+price = gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
+
+ggplot(price[price$State == "PA" & !is.na(price$Metro),]) +
+  geom_boxplot(aes(x = fct_rev(Metro), 
+                   y = as.numeric(Price)), fill="#9999CC", color="#66CC99", outlier.size = 0.5) +
+  labs(x = "Metro Area", y = "Price", #note these are opposite because I use coord_flip to flip the axes
+       colour = "#E0E0E0") +
+  coord_flip()
+
+```
+
+
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 7}
 # price
 ggplot(price[price$County == "Dallas" & !is.na(price$City),], 
                aes(y = fct_rev(City), x = Price)) +
-  labs(title = "Zillow | San Diego County Rent Prices",
+  labs(title = "Zillow | Dallas County Rent Prices",
        subtitle = "2010 - 2017", 
-       x = "Price", y = "County", 
+       x = "Price", y = "Dallas County", 
        colour = "Time") +
   geom_point(shape = 20, alpha = 0.4, size = 3, aes(color = Month)) +
   scale_color_discrete(l = 45, h = c(30, 330)) 
@@ -91,7 +105,7 @@ ggplot(price[price$County == "Los Angeles" & !is.na(price$City),],
                aes(y = fct_rev(City), x = Price)) +
   labs(title = "Zillow | Los Angeles County Rent Prices",
        subtitle = "2010 - 2017", 
-       x = "Price", y = "County", 
+       x = "Price", y = "LA County", 
        colour = "Time") +
   geom_point(shape = 16, alpha = 0.4, size = 3, aes(color = Month)) +
   scale_colour_viridis_d()
@@ -100,10 +114,9 @@ ggplot(price[price$County == "Los Angeles" & !is.na(price$City),],
 ```
 
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 8}
-
+# Create variable of numeric year
 price$Year = as.character(price$Month)
 price$Year = as.numeric(substr(price$Month, nchar(as.character(price$Month)) - 3, nchar(as.character(price$Month))))
-
 
 # Calculate range for each state, by year
 states = price[!is.na(price$State),] %>%
@@ -112,12 +125,13 @@ states = price[!is.na(price$State),] %>%
             Min = min(Price),
             Max = max(Price)) 
 
+# Plot change over time, by state.
 ggplot(states[!is.na(states$Mean),], 
                 aes(x = fct_rev(State),
                     y = as.numeric(Mean))) +
   labs(title = "Zillow | Mean US Rent Prices",
        subtitle = "2010 - 2017", 
-       x = "Average Price", y = "States", 
+       x = "States", y = "Average Price", 
        colour = "#E0E0E0") +
   geom_point(shape = 20, alpha = 0.8, size = 5, aes(color = Year)) +
   scale_color_continuous(aes(guide = ""), low = "black", high = "purple") + 
@@ -148,7 +162,5 @@ autoplot(ts,facets = NULL)+ geom_hex(size=1.5, alpha=0.7) + scale_fill_viridis_c
   labs(x="Time",y="Price")
 ```
 
-```{r}
 
-```
 
