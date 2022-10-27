@@ -73,7 +73,7 @@ ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
   coord_flip()
 
 ```
-```{r, results='markup', fig.width = 10, fig.height = 7}
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 7}
 # price
 ggplot(price[price$County == "Dallas" & !is.na(price$City),], 
                aes(y = fct_rev(City), x = Price)) +
@@ -86,7 +86,7 @@ ggplot(price[price$County == "Dallas" & !is.na(price$City),],
 
 ```
 
-```{r, results='markup', fig.width = 10, fig.height = 15}
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 15}
 ggplot(price[price$County == "Los Angeles" & !is.na(price$City),], 
                aes(y = fct_rev(City), x = Price)) +
   labs(title = "Zillow | Los Angeles County Rent Prices",
@@ -99,7 +99,7 @@ ggplot(price[price$County == "Los Angeles" & !is.na(price$City),],
 
 ```
 
-```{r, results='markup', fig.width = 8, fig.height = 8}
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 8}
 
 price$Year = as.character(price$Month)
 price$Year = as.numeric(substr(price$Month, nchar(as.character(price$Month)) - 3, nchar(as.character(price$Month))))
@@ -117,20 +117,11 @@ ggplot(states[!is.na(states$Mean),],
                     y = as.numeric(Mean))) +
   labs(title = "Zillow | Mean US Rent Prices",
        subtitle = "2010 - 2017", 
-       x = "", y = "", 
+       x = "Average Price", y = "States", 
        colour = "#E0E0E0") +
   geom_point(shape = 20, alpha = 0.8, size = 5, aes(color = Year)) +
-  scale_color_continuous(aes(guide = ""), low = "black", high = "purple") +
-  theme(axis.ticks.y = element_blank(),
-        plot.title = element_text(size = 15, face = c("bold","italic")),
-        axis.text.x = element_text(size = 9),
-        axis.title.x = element_text(size = 10),
-        axis.title.y = element_text(size = 10),
-        legend.position = "bottom",
-        plot.subtitle = element_text(size = 10),
-        plot.background = element_rect(fill = "white"), # background color
-        panel.grid.major.y = element_line(color = "#E0E0E0"), # horizontal line color
-        panel.background = element_rect(fill = "white")) +
+  scale_color_continuous(aes(guide = ""), low = "black", high = "purple") + 
+  guides(fill = guide_colourbar(barwidth = 0.7, barheight = 15)) +
   coord_flip() 
 
 ```
