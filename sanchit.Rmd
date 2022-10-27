@@ -23,13 +23,16 @@ options(scientific=T, digits = 3)
 ```{r, results='markup'}
 #First, load the file
 zillow = data.frame(read.csv("price.csv"))
-head(zillow)
+# head(zillow)
 ```
+
+
 ```{r, results='markup'}
 # colSums(is.na(zillow))
-# summary(zillow)
+summary(zillow)
 zillow = na.omit(zillow)
 # colSums(is.na(zillow))
+zillow
 ```
 
 ```{r, results='markup', fig.align="center", fig.width = 5}
@@ -41,23 +44,103 @@ ggplot(zillow, aes(x=State)) + geom_bar(colour="blue", fill="purple", alpha=0.6)
 
 ```{r, results='markup'}
 library("zoo")
+library(ggfortify)
+library(reshape2)
 
-values=head(zillow,10)
-values=data.frame(t(as.matrix(zillow[,7:81])))
+num_city = 10
+values=head(zillow, num_city)
+values=data.frame(t(as.matrix(values[,7:81])))
+colnames(values)=zillow[1:num_city,2]
 
-date <- seq(as.Date("2010/11/01"), as.Date("2017/01/31"),"month")
+date <- seq(as.Date("2010/11/01"), as.Date("2017/01/31"), "month")
 date <- as.yearmon(date)
 ts=zoo(values,order.by = date)
 values=fortify(ts)
 values$Index=as.Date(values$Index)
 
-# autoplot(ts,facet=NULL)+
-#   theme_minimal()+
-#   labs(x="Time",y="Price")
-
-ggplot(values, aes(x=))
+autoplot(ts,facet=NULL, )+
+  theme_minimal()+
+  labs(x="Time",y="Price")
+# Y = cbind(values[,grepl("X", colnames(values))])
+# ne = melt(values, id = 'Index')#, variable.name = 'series')
+# ne
+# ts
+# ggplot(ne, aes(x=Index, y=value)) + geom_line()
 
 ```
 
+```{r}
+price <- gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
 
+plot1 <- ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
+  geom_boxplot(aes(x = fct_rev(Metro), 
+                   y = as.numeric(Price))) +
+  labs(x = "Metro Area", y = "Price", #note these are opposite because I use coord_flip to flip the axes
+       colour = "#E0E0E0") +
+  theme(axis.ticks.y = element_blank(),
+        plot.title = element_text(size = 15, face = c("bold","italic")),
+        axis.text.x = element_text(size = 9),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        legend.position = "none",
+        plot.subtitle = element_text(size = 10),
+        plot.background = element_rect(fill = "white"), # background color
+        panel.grid.major.y = element_line(color = "#E0E0E0"), # horizontal line color
+        panel.background = element_rect(fill = "white")) +
+  coord_flip()
+plot1
+
+```
+```{r}
+plot2 <- ggplot(price[price$County == "San Diego" & !is.na(price$City),], 
+               aes(y = fct_rev(City), x = Price)) +
+  labs(title = "Zillow | San Diego County Rent Prices",
+       subtitle = "2010 - 2017", 
+       x = "", y = "", 
+       colour = "#E0E0E0") +
+  geom_point(shape = 20, alpha = 0.6, size = 5, aes(color = Month)) +
+  scale_color_discrete(l = 45, h = c(30, 330)) +
+  theme(axis.ticks.y = element_blank(),
+        plot.title = element_text(size = 15, face = c("bold","italic")),
+        axis.text.x = element_text(size = 9),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        legend.position = "none",
+        plot.subtitle = element_text(size = 10),
+        plot.background = element_rect(fill = "white"), # background color
+        panel.grid.major.y = element_line(color = "#E0E0E0"), # horizontal line color
+        panel.background = element_rect(fill = "white")) +
+  scale_x_continuous(breaks = waiver()) #sets # of labels on x axis
+plot2
+```
+
+```{r, results='markup'}
+# nov = zillow[,grepl("Nov", colnames(zillow))]
+# nov["city"] = zillow$City
+# # nov
+# ggplot(nov[1:10, ], aes(city, November.2010)) + 
+#   geom_line()
+```
+
+```{r}
+# library(forecast)
+# forecasts=matrix(,ncol=10,nrow=11)
+# 
+# for(i in 1:10){
+#   
+#   forecasts[,i]=forecast(auto.arima(ts[,i],lambda = 0,stepwise = F),h=11)$mean
+#   
+# }
+# # forecasts
+# colnames(forecasts)=zillow[1:10,2]
+# 
+# results=rbind(values[,2:11],forecasts)
+# date_2 <- seq(as.Date("2010/11/01"), as.Date("2017/12/31"),"month")
+# date_2 <- as.yearmon(date_2)
+# results=zoo(results,order.by = date_2)
+# autoplot(results,facet=NULL)+
+#   theme_minimal()+
+#   labs(x="Time",y="Price")+
+#   geom_vline(aes(xintercept=2017),size=0.2)
+```
 
