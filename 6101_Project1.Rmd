@@ -229,13 +229,13 @@ ggplot(westcoast_annual, aes(State, November.2010, color=State)) + geom_boxplot(
 
 ggplot(westcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2010 Rent Prices without Outliers")
 
-ggplot(westcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire West Coast November 2010 Boxplot without Outliers")
+ggplot(westcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire West Coast November 2010 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
 
 ggplot(westcoast_annual, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2016 Rent Prices with Outliers")
 
 ggplot(westcoast_annualClean, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2016 Rent Prices without Outliers")
 
-ggplot(westcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire West Coast November 2016 Boxplot without Outliers")
+ggplot(westcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire West Coast November 2016 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
 ```
 
 ## Boxplot of East Coast Zillow Rental Prices 2010-2016
@@ -244,13 +244,13 @@ ggplot(eastcoast_annual, aes(State, November.2010, color=State)) + geom_boxplot(
 
 ggplot(eastcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2010 Rent Prices without Outliers")
 
-ggplot(eastcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire East Coast November 2010 Boxplot without Outliers")
+ggplot(eastcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2010 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
 
 ggplot(eastcoast_annual, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2016 Rent Prices with Outliers")
 
 ggplot(eastcoast_annualClean, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2016 Rent Prices without Outliers")
 
-ggplot(eastcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire East Coast November 2016 Boxplot without Outliers")
+ggplot(eastcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2016 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
 ```
 
 ## Scatter plot of West Coast
@@ -322,20 +322,20 @@ eastAnnAvg = eastAnn[-c(2:3989)]
 ## T Test of First and Last Month of East and  West Coast
 ```{r,results='asis'}
 loadPkg("BSDA") # for z.test
-west2010_95 = t.test(x=westcoast_annualClean$November.2010)
-west2010_95
-west2016_95 = t.test(x=westcoast_annualClean$November.2016)
-west2016_95
+west2010_80 = t.test(x=westcoast_annualClean$November.2010, conf.level = 0.80)
+west2010_80
+west2016_80 = t.test(x=westcoast_annualClean$November.2016, conf.level = 0.80)
+west2016_80
 
 west2010_99 = t.test(x=westcoast_annualClean$November.2010, conf.level = 0.99)
 west2010_99
 west2016_99 = t.test(x=westcoast_annualClean$November.2016, conf.level = 0.99)
 west2016_99
 
-east2010_95 = t.test(x=eastcoast_annualClean$November.2010)
-east2010_95
-east2016_95 = t.test(x=eastcoast_annualClean$November.2016)
-east2016_95
+east2010_80 = t.test(x=eastcoast_annualClean$November.2010, conf.level = 0.80)
+east2010_80
+east2016_80 = t.test(x=eastcoast_annualClean$November.2016, conf.level = 0.80)
+east2016_80
 
 east2010_99 = t.test(x=eastcoast_annualClean$November.2010, conf.level = 0.99)
 east2010_99
