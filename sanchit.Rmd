@@ -32,17 +32,17 @@ zillow = data.frame(read.csv("price.csv"))
 summary(zillow)
 zillow = na.omit(zillow)
 # colSums(is.na(zillow))
-zillow
+# zillow
 ```
 
-```{r, results='markup', fig.align="center", fig.width = 5}
-options(repr.plot.width=20, repr.plot.height=10)
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
+options(repr.plot.width=30, repr.plot.height=10)
 
 ggplot(zillow, aes(x=State)) + geom_bar(colour="blue", fill="purple", alpha=0.6)
 ```
 
 
-```{r, results='markup'}
+```{r, results='markup', fig.align="center", fig.width = 8, fig.height=5}
 library("zoo")
 library(ggfortify)
 library(reshape2)
@@ -69,12 +69,12 @@ autoplot(ts,facet=NULL, )+
 
 ```
 
-```{r}
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
 price <- gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
 
 plot1 <- ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
   geom_boxplot(aes(x = fct_rev(Metro), 
-                   y = as.numeric(Price))) +
+                   y = as.numeric(Price)), fill="#FF9999", color="#56B4E9", outlier.size = 0.5) +
   labs(x = "Metro Area", y = "Price", #note these are opposite because I use coord_flip to flip the axes
        colour = "#E0E0E0") +
   theme(axis.ticks.y = element_blank(),
@@ -91,14 +91,14 @@ plot1 <- ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
 plot1
 
 ```
-```{r}
-plot2 <- ggplot(price[price$County == "San Diego" & !is.na(price$City),], 
+```{r, results='markup', fig.width = 10, fig.height = 7}
+plot2 <- ggplot(price[price$County == "Dallas" & !is.na(price$City),], 
                aes(y = fct_rev(City), x = Price)) +
   labs(title = "Zillow | San Diego County Rent Prices",
        subtitle = "2010 - 2017", 
-       x = "", y = "", 
+       x = "Price", y = "County", 
        colour = "#E0E0E0") +
-  geom_point(shape = 20, alpha = 0.6, size = 5, aes(color = Month)) +
+  geom_point(shape = 20, alpha = 0.4, size = 3, aes(color = Month)) +
   scale_color_discrete(l = 45, h = c(30, 330)) +
   theme(axis.ticks.y = element_blank(),
         plot.title = element_text(size = 15, face = c("bold","italic")),
