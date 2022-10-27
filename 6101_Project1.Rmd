@@ -646,8 +646,9 @@ ggplot(states[!is.na(states$Mean),],
 
 ```
 
-## Hex plot with number of counties for top 5 cities
+## Line plot with number of counties for top 5 cities
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=12}
+
 num_city = 5
 values=head(zillow, num_city, )
 values=data.frame(t(as.matrix(values[,7:81])))
