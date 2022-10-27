@@ -11,6 +11,10 @@ library(ezids)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
+library(zoo)
+library(ggfortify)
+library(reshape2)
+
 # knitr::opts_chunk$set(warning = F, results = "markup", message = F)
 knitr::opts_chunk$set(warning = F, results = "hide", message = F)
 options(scientific=T, digits = 3) 
@@ -29,118 +33,131 @@ zillow = data.frame(read.csv("price.csv"))
 
 ```{r, results='markup'}
 # colSums(is.na(zillow))
-summary(zillow)
+# summary(zillow)
 zillow = na.omit(zillow)
 # colSums(is.na(zillow))
 # zillow
 ```
 
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
-options(repr.plot.width=30, repr.plot.height=10)
-
 ggplot(zillow, aes(x=State)) + geom_bar(colour="blue", fill="purple", alpha=0.6)
 ```
 
 
-```{r, results='markup', fig.align="center", fig.width = 8, fig.height=5}
-library("zoo")
-library(ggfortify)
-library(reshape2)
-
+```{r, results='markup', fig.align="center", fig.width = 12, fig.height=5}
 num_city = 10
-values=head(zillow, num_city)
+values=head(zillow, num_city, )
 values=data.frame(t(as.matrix(values[,7:81])))
 colnames(values)=zillow[1:num_city,2]
 
-date <- seq(as.Date("2010/11/01"), as.Date("2017/01/31"), "month")
-date <- as.yearmon(date)
+date = seq(as.Date("2010/11/01"), as.Date("2017/01/31"), "month")
+date = as.yearmon(date)
 ts=zoo(values,order.by = date)
 values=fortify(ts)
 values$Index=as.Date(values$Index)
 
-autoplot(ts,facet=NULL, )+
+autoplot(ts,facets = NULL)+ geom_point(size=0.5) +
   theme_minimal()+
   labs(x="Time",y="Price")
-# Y = cbind(values[,grepl("X", colnames(values))])
-# ne = melt(values, id = 'Index')#, variable.name = 'series')
-# ne
-# ts
-# ggplot(ne, aes(x=Index, y=value)) + geom_line()
 
 ```
 
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
-price <- gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
+price = gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
 
-plot1 <- ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
+ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
   geom_boxplot(aes(x = fct_rev(Metro), 
                    y = as.numeric(Price)), fill="#FF9999", color="#56B4E9", outlier.size = 0.5) +
   labs(x = "Metro Area", y = "Price", #note these are opposite because I use coord_flip to flip the axes
        colour = "#E0E0E0") +
-  theme(axis.ticks.y = element_blank(),
-        plot.title = element_text(size = 15, face = c("bold","italic")),
-        axis.text.x = element_text(size = 9),
-        axis.title.x = element_text(size = 10),
-        axis.title.y = element_text(size = 10),
-        legend.position = "none",
-        plot.subtitle = element_text(size = 10),
-        plot.background = element_rect(fill = "white"), # background color
-        panel.grid.major.y = element_line(color = "#E0E0E0"), # horizontal line color
-        panel.background = element_rect(fill = "white")) +
   coord_flip()
-plot1
 
 ```
 ```{r, results='markup', fig.width = 10, fig.height = 7}
-plot2 <- ggplot(price[price$County == "Dallas" & !is.na(price$City),], 
+# price
+ggplot(price[price$County == "Dallas" & !is.na(price$City),], 
                aes(y = fct_rev(City), x = Price)) +
   labs(title = "Zillow | San Diego County Rent Prices",
        subtitle = "2010 - 2017", 
        x = "Price", y = "County", 
-       colour = "#E0E0E0") +
+       colour = "Time") +
   geom_point(shape = 20, alpha = 0.4, size = 3, aes(color = Month)) +
-  scale_color_discrete(l = 45, h = c(30, 330)) +
+  scale_color_discrete(l = 45, h = c(30, 330)) 
+
+```
+
+```{r, results='markup', fig.width = 10, fig.height = 15}
+ggplot(price[price$County == "Los Angeles" & !is.na(price$City),], 
+               aes(y = fct_rev(City), x = Price)) +
+  labs(title = "Zillow | Los Angeles County Rent Prices",
+       subtitle = "2010 - 2017", 
+       x = "Price", y = "County", 
+       colour = "Time") +
+  geom_point(shape = 16, alpha = 0.4, size = 3, aes(color = Month)) +
+  scale_colour_viridis_d()
+  # scale_colour_gradientn(colours=rainbow(4))
+
+```
+
+```{r, results='markup', fig.width = 8, fig.height = 8}
+
+price$Year = as.character(price$Month)
+price$Year = as.numeric(substr(price$Month, nchar(as.character(price$Month)) - 3, nchar(as.character(price$Month))))
+
+
+# Calculate range for each state, by year
+states = price[!is.na(price$State),] %>%
+  group_by(State, Year) %>%
+  summarise(Mean = round(mean(Price),0),
+            Min = min(Price),
+            Max = max(Price)) 
+
+ggplot(states[!is.na(states$Mean),], 
+                aes(x = fct_rev(State),
+                    y = as.numeric(Mean))) +
+  labs(title = "Zillow | Mean US Rent Prices",
+       subtitle = "2010 - 2017", 
+       x = "", y = "", 
+       colour = "#E0E0E0") +
+  geom_point(shape = 20, alpha = 0.8, size = 5, aes(color = Year)) +
+  scale_color_continuous(aes(guide = ""), low = "black", high = "purple") +
   theme(axis.ticks.y = element_blank(),
         plot.title = element_text(size = 15, face = c("bold","italic")),
         axis.text.x = element_text(size = 9),
         axis.title.x = element_text(size = 10),
         axis.title.y = element_text(size = 10),
-        legend.position = "none",
+        legend.position = "bottom",
         plot.subtitle = element_text(size = 10),
         plot.background = element_rect(fill = "white"), # background color
         panel.grid.major.y = element_line(color = "#E0E0E0"), # horizontal line color
         panel.background = element_rect(fill = "white")) +
-  scale_x_continuous(breaks = waiver()) #sets # of labels on x axis
-plot2
+  coord_flip() 
+
 ```
 
-```{r, results='markup'}
-# nov = zillow[,grepl("Nov", colnames(zillow))]
-# nov["city"] = zillow$City
-# # nov
-# ggplot(nov[1:10, ], aes(city, November.2010)) + 
-#   geom_line()
+```{r, results='markup', fig.align="center", fig.width = 10, fig.height=12}
+library("zoo")
+library(ggfortify)
+library(reshape2)
+
+num_city = 5
+values=head(zillow, num_city, )
+values=data.frame(t(as.matrix(values[,7:81])))
+colnames(values)=zillow[1:num_city,2]
+
+date = seq(as.Date("2010/11/01"), as.Date("2017/01/31"), "month")
+date = as.yearmon(date)
+ts=zoo(values,order.by = date)
+values=fortify(ts)
+values$Index=as.Date(values$Index)
+
+autoplot(ts,facets = NULL)+ geom_hex(size=1.5, alpha=0.7) + scale_fill_viridis_c() + 
+  guides(fill = guide_colourbar(barwidth = 0.7, barheight = 15)) +
+  theme_minimal()+ 
+  labs(x="Time",y="Price")
 ```
 
 ```{r}
-# library(forecast)
-# forecasts=matrix(,ncol=10,nrow=11)
-# 
-# for(i in 1:10){
-#   
-#   forecasts[,i]=forecast(auto.arima(ts[,i],lambda = 0,stepwise = F),h=11)$mean
-#   
-# }
-# # forecasts
-# colnames(forecasts)=zillow[1:10,2]
-# 
-# results=rbind(values[,2:11],forecasts)
-# date_2 <- seq(as.Date("2010/11/01"), as.Date("2017/12/31"),"month")
-# date_2 <- as.yearmon(date_2)
-# results=zoo(results,order.by = date_2)
-# autoplot(results,facet=NULL)+
-#   theme_minimal()+
-#   labs(x="Time",y="Price")+
-#   geom_vline(aes(xintercept=2017),size=0.2)
+
 ```
 
