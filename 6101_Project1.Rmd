@@ -29,6 +29,7 @@ library(matrixStats)
 library(zoo)
 library(ggfortify)
 library(reshape2)
+library(hexbin)
 # knitr::opts_chunk$set(warning = F, results = "markup", message = F)
 knitr::opts_chunk$set(warning = F, results = "hide", message = F)
 options(scientific=T, digits = 3) 
@@ -646,7 +647,7 @@ ggplot(states[!is.na(states$Mean),],
 
 ```
 
-## Line plot with number of counties for top 5 cities
+## Hex plot with number of counties for top 5 cities
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=12}
 
 num_city = 5
