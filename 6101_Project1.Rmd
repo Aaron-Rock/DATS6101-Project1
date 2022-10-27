@@ -517,12 +517,12 @@ ggplot(zillow_pcumumelt, aes(x=Date, y=CumulativeProportionChange, group=City, c
 ```
 
 Box plot of each city's proportional change. As expected, San Francisco and Roanoke seem to have the largest ranges and variances. We are also dropping New York again.
-```{r}
+```{r, fig.align="center", fig.width = 10, fig.height=5}
 zillow_prodrop = zillow_proportion[-2]
 zillow_pdmelt <- melt(zillow_prodrop, id = "Date")
 names(zillow_pdmelt)[2] <- "City"
 names(zillow_pdmelt)[3] <- "ProportionChange"
-ggplot(zillow_pdmelt, aes(x=City, y=ProportionChange, color=City, na.rm=TRUE)) + geom_boxplot(outlier.shape=8, outlier.size=4)
+ggplot(zillow_pdmelt, aes(x=City, y=ProportionChange, color=City, na.rm=TRUE)) + geom_boxplot(outlier.shape=2, outlier.size=1)
 ```
 
 
@@ -534,6 +534,10 @@ summary(pm_anova)
 tukeyAoV <- TukeyHSD(pm_anova)
 tukeyAoV
 ```
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+Start of Total Population File
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 ## State wise countplot  
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
@@ -601,6 +605,7 @@ ggplot(price[price$County == "Dallas" & !is.na(price$City),],
 
 ## Los Angeles county rent prices (point plot across time)
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 15}
+
 ggplot(price[price$County == "Los Angeles" & !is.na(price$City),], 
                aes(y = fct_rev(City), x = Price)) +
   labs(title = "Zillow | Los Angeles County Rent Prices",
@@ -643,10 +648,6 @@ ggplot(states[!is.na(states$Mean),],
 
 ## Hex plot with number of counties for top 5 cities
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=12}
-library("zoo")
-library(ggfortify)
-library(reshape2)
-
 num_city = 5
 values=head(zillow, num_city, )
 values=data.frame(t(as.matrix(values[,7:81])))
