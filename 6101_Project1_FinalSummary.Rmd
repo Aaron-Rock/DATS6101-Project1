@@ -65,20 +65,13 @@ The dataset we explored is on the monthly rental prices of the United States of 
 Although the dataset has 11348 substantial observations, we need to highlight limitations and biases of the dataset we have chosen to explore. As was stated above the dataset does not include every single zip code in the United States and affected certain results in our EDA. There are a plethora of websites and companies that list rental properties. A major bias is that we have chosen a dataset that limits itself to only using properties that were listed on the Zillow website, so even when talking about the changes of locations and their rental prices it is only considering the information that was listed on Zillow and used for their Zestimate.
 
 ## Questions Posed
-The goal of exploring the Zillow dataset was to answer and look into three main questions that were introduced about how time and location affected rental prices. The first question is between the east and west coast what region’s price rose the most or were they similar? Was there ever overlapping in pricing? Secondly, what cities saw the most change in price differentiation amongst the cities that were picked? Lastly, with the total population …………………….
-
-## East Coast versus West Coast
-The first question to be discussed will be the differences and comparisons of the East coast and West coast. Each region is defined by what the United States refers to as East and West coast. The East coast is made up of fourteen states and after subsetting from the original lump data frame has 3988 observations. The West coast is comprised of five states and following creating its own data frame has 1221 observations. 
-
-
+The goal of exploring the Zillow dataset was to answer and look into three main questions that were introduced about how time and location affected rental prices. The first question is between the east and west coast what region’s price rose the most or were they similar from the first time stamp to the last time stamp? Was there ever overlapping in pricing? Secondly, what cities saw the most change in price differentiation amongst the cities that were picked? Lastly, with the total population …………………….
 ```{r, echo = FALSE}
 #First, load the file
 # Import the data
 zillow = data.frame(read.csv("price.csv"))
 head(zillow)
 ```
-
-
 ```{r, echo = FALSE}
 # Remove blank pricing data
 # Remove empty rows, NA's are only present if no data was collected for the location
@@ -143,15 +136,15 @@ westcoast_annual <- westcoast_annual %>%
 ```{r, echo = FALSE}
 # Clean Data of Outliers
 # clean the data
-westcoast_annualClean = outlierKD2(westcoast_annual, November.2010, rm = TRUE)
-westcoast_annualClean = outlierKD2(westcoast_annualClean, November.2016, rm = TRUE)
-westcoast_annualClean = outlierKD2(westcoast_annualClean, Avg.Price, rm = TRUE)
-westcoast_annualClean = outlierKD2(westcoast_annualClean, Price.Diff, rm = TRUE)
+westcoast_annualClean = outlierKD2(westcoast_annual, November.2010, rm = TRUE, FALSE,FALSE,FALSE)
+westcoast_annualClean = outlierKD2(westcoast_annualClean, November.2016, rm = TRUE, FALSE,FALSE,FALSE)
+westcoast_annualClean = outlierKD2(westcoast_annualClean, Avg.Price, rm = TRUE, FALSE,FALSE,FALSE)
+westcoast_annualClean = outlierKD2(westcoast_annualClean, Price.Diff, rm = TRUE, FALSE,FALSE,FALSE)
 
-eastcoast_annualClean = outlierKD2(eastcoast_annual, November.2010, rm = TRUE)
-eastcoast_annualClean = outlierKD2(eastcoast_annualClean, November.2016, rm = TRUE)
-eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Avg.Price, rm = TRUE)
-eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Price.Diff, rm = TRUE)
+eastcoast_annualClean = outlierKD2(eastcoast_annual, November.2010, rm = TRUE, FALSE,FALSE,FALSE)
+eastcoast_annualClean = outlierKD2(eastcoast_annualClean, November.2016, rm = TRUE, FALSE,FALSE,FALSE)
+eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Avg.Price, rm = TRUE, FALSE,FALSE,FALSE)
+eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Price.Diff, rm = TRUE, FALSE,FALSE,FALSE)
 ```
 
 
@@ -188,56 +181,41 @@ xkablesummary(westcoast_annual[c(7,10,13:15)], title="West Coast Summary Annuall
 xkablesummary(eastcoast_annual[c(7,10,13:15)], title="East Coast Summary Annually")
 ```
 
-# West Coast Annual Novemeber 2010 Start and November 2016 End Histogram
-```{r, echo = FALSE}
+## East Coast versus West Coast
+The first question to be discussed will be the differences and comparisons of the East coast and West coast. Each region is defined by what the United States refers to as East and West coast. The East coast is made up of fourteen states and after subsetting from the original lump data frame has 3988 observations. The West coast is comprised of five states and following the creation of its own data frame the west coast has 1221 observations. We will first look at the frequency of rental prices by viewing the histograms of each region and the month of November with the year 2010 depicted in the light red color and year 2016 shown in the light blue color. For each chart shown there will be a plot including outliers and then a chart not including outliers to help with distribution. 
+
+```{r fig1, fig.height = 5, fig.width = 7, fig.align = "center"}
 library(ggplot2)
-ggplot(westcoast_annualClean, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 70) + 
-    labs(title = "Rental Price Count on the West Coast in November 2010", x = "Rental Prices", y = "Frequency")
-
-ggplot(westcoast_annual, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 70) + 
-    labs(title = "Rental Price Count on the West Coast in November 2010", x = "Rental Prices", y = "Frequency")
-
-ggplot(westcoast_annual, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 70) + 
-    labs(title = "Rental Price Count on the West Coast in November 2016", x = "Rental Prices", y = "Frequency")
-
-ggplot(westcoast_annualClean, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 70) + 
-    labs(title = "Rental Price Count on the West Coast in November 2016", x = "Rental Prices", y = "Frequency")
-
-ggplot(westcoast_annual) + 
-    geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 70) + 
-    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 70) +
-    labs(title = "Rental Price Count on the West Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
 
 colors <- c("November.2010" = "red", "November.2016" = "blue")
+
+ggplot(westcoast_annual) + 
+    geom_histogram(aes(November.2010, fill = "November.2010"),alpha = 0.4, bins = 40) + 
+    geom_histogram(aes(November.2016, fill = "November.2016"),alpha = 0.4, bins = 40) + 
+    labs(title = "Rental Price Count on the West Coast from November 2010 to November 2016 with Outliers", x = "Rental Prices", 
+         y = "Frequency", fill = "Legend") +
+    scale_color_manual(values = colors)
+
 
 ggplot(westcoast_annualClean) + 
     geom_histogram(aes(November.2010, fill = "November.2010"),alpha = 0.4, bins = 40) + 
     geom_histogram(aes(November.2016, fill = "November.2016"),alpha = 0.4, bins = 40) + 
-    labs(title = "Rental Price Count on the West Coast from November 2010 to November 2016", x = "Rental Prices", 
+    labs(title = "Rental Price Count on the West Coast from November 2010 to November 2016 without Outliers", x = "Rental Prices", 
          y = "Frequency", fill = "Legend") +
     scale_color_manual(values = colors)
 ```
 
-# East Coast Annual Novemeber 2010 Start and November 2016 End Histogram
-```{r, echo = FALSE}
-ggplot(eastcoast_annual, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) +  
-    labs(title = "Rental Price Count on the East Coast from November 2010", x = "Rental Prices", y = "Frequency")
+The most observed rental price for the West coast for both 2010 and 2016 of November sat right around 1250 a month with the bin shifting slightly to the right for the year 2016 with the number of frequencies being above 100 for 2010 and about 75 for the year 2016. Prices for this region did get more expensive and we can notice that for 2016 the plot is crawling up the x-axis showing that prices are climbing.
 
-ggplot(eastcoast_annualClean, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) +  
-    labs(title = "Rental Price Count on the East Coast from November 2010", x = "Rental Prices", y = "Frequency")
-
-ggplot(eastcoast_annual, aes(November.2016)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) +  
-    labs(title = "Rental Price Count on the East Coast from November 2010", x = "Rental Prices", y = "Frequency")
-
-ggplot(eastcoast_annualClean, aes(November.2016)) + geom_histogram(fill="blue",alpha = 0.4,bins= 40) +  
-    labs(title = "Rental Price Count on the East Coast from November 2016", x = "Rental Prices", y = "Frequency")
+```{r fig2, fig.height = 5, fig.width = 7, fig.align = "center"}
+colors <- c("November.2010" = "red", "November.2016" = "blue")
 
 ggplot(eastcoast_annual) + 
-    geom_histogram(aes(November.2010), fill = "red", alpha = 0.4, bins = 40) + 
-    geom_histogram(aes(November.2016), fill = "blue", alpha = 0.4, bins = 40) +
-    labs(title = "Rental Price Count on the East Coast from November 2010 to November 2016", x = "Rental Prices", y = "Frequency")
-
-colors <- c("November.2010" = "red", "November.2016" = "blue")
+    geom_histogram(aes(November.2010, fill = "November.2010"),alpha = 0.4, bins = 40) + 
+    geom_histogram(aes(November.2016, fill = "November.2016"),alpha = 0.4, bins = 40) + 
+    labs(title = "Rental Price Count on the East Coast from November 2010 to November 2016", x = "Rental Prices", 
+         y = "Frequency", fill = "Legend") +
+    scale_color_manual(values = colors)
 
 ggplot(eastcoast_annualClean) + 
     geom_histogram(aes(November.2010, fill = "November.2010"),alpha = 0.4, bins = 40) + 
@@ -246,6 +224,9 @@ ggplot(eastcoast_annualClean) +
          y = "Frequency", fill = "Legend") +
     scale_color_manual(values = colors)
 ```
+
+For the East coast, it is clear again that about 1250 a month for the rental price is the most frequent price. Just like with the West coast we see that the blue, depicting the year 2016, is pulling itself up the x-axis again showing climbing rental prices. One thing to note about the East coast plots is the y-axis clearly being a larger number showing just the differences in observations between the two regions.
+
 
 # Boxplot of West Coast Zillow Rental Prices 2010-2016
 ```{r, echo = FALSE}
