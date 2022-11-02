@@ -56,21 +56,37 @@ Potential area of topics to address in this summary may include:
  Based on EDA can you begin to sketch out an answer to your question?
  References (APA style preferred)
 
-## Import the data
-```{r}
+
+
+## Introduction to the dataset
+The dataset we explored is on the monthly rental prices of the United States of America from 2010 to 2017 sourced from the application Zillow. This dataset was found on the website Kaggle and has no listed author. The contents of the dataset covers all types of properties such as apartments, townhomes, single family, and multi-family properties that make up the median city code price listing. It is important to note a few important facts about the dataset before going into any more detail. First off, the rental prices are not listing of physical properties but in fact is the median price of the specific city code. Secondly, the dataset does not include every geographical location in the United States and does not include the state of Alaska. Our dataset consists of 13131 observations. There are 1738 rows that are completely empty so after removing these rows we have 11348 observations and 81 variables. Our variables consist of the city code, which is the unique identification of each observation, city, state, metro, country, and population rank. The rest of the variables are time stamps of the monthly rental price of that row’s city code from November 2010 to January 2017. Zillow creates rent forecasting grounded on exclusive statistical and machine learning models also known as Zestimates. Zestimate history only goes back until November 2010 hence why the first time stamp begins on this date. Our dataset was last updated on January 2017 and will be the last variable of the overall dataset. 
+  
+## Biases and Limitations
+Although the dataset has 11348 substantial observations, we need to highlight limitations and biases of the dataset we have chosen to explore. As was stated above the dataset does not include every single zip code in the United States and affected certain results in our EDA. There are a plethora of websites and companies that list rental properties. A major bias is that we have chosen a dataset that limits itself to only using properties that were listed on the Zillow website, so even when talking about the changes of locations and their rental prices it is only considering the information that was listed on Zillow and used for their Zestimate.
+
+## Questions Posed
+The goal of exploring the Zillow dataset was to answer and look into three main questions that were introduced about how time and location affected rental prices. The first question is between the east and west coast what region’s price rose the most or were they similar? Was there ever overlapping in pricing? Secondly, what cities saw the most change in price differentiation amongst the cities that were picked? Lastly, with the total population …………………….
+
+## East Coast versus West Coast
+The first question to be discussed will be the differences and comparisons of the East coast and West coast. Each region is defined by what the United States refers to as East and West coast. The East coast is made up of fourteen states and after subsetting from the original lump data frame has 3988 observations. The West coast is comprised of five states and following creating its own data frame has 1221 observations. 
+
+
+```{r, echo = FALSE}
 #First, load the file
+# Import the data
 zillow = data.frame(read.csv("price.csv"))
 head(zillow)
 ```
 
-## Remove blank pricing data
-```{r}
+
+```{r, echo = FALSE}
+# Remove blank pricing data
 # Remove empty rows, NA's are only present if no data was collected for the location
 zillow = na.omit(zillow)
 ```
 
-## Subset the Zillow data into east coast and west coast and annual subsets of the regions.
-``` {r}
+```{r, echo = FALSE}
+# Subset the Zillow data into east coast and west coast and annual subsets of the regions.
 # going through and discarding states that are not defined by the Uited States as West or East coast states
 
 eastcoast = subset(zillow, State == 'CT' | State == 'NY' | State == 'VA' | State == 'FL' | State == 'NJ' | State == 'NC' |State == 'SC' | State == 'GA' | State == 'DE' | State == 'MA' | State == 'MD' | State == 'ME' | State == 'RI' | State == 'NH')
@@ -103,8 +119,9 @@ eastAnn = eastcoast_annual
 eastAnn = eastAnn[-c(2,3,4,5,6)]
 ```
 
-## Find the difference between of rent price and add it as a column AND add average price of rent over the years column
-```{r}
+
+```{r, echo = FALSE}
+# Find the difference between of rent price and add it as a column AND add average price of rent over the years column
 # use dplyr package to create new columns Price.Diff and Avg.Price
 eastcoast_annual <- eastcoast_annual %>%
     mutate(Price.Diff = November.2016 - November.2010)
@@ -122,8 +139,9 @@ westcoast_annual <- westcoast_annual %>%
 
 
 
-## Clean Data of Outliers
-```{r,results='asis'}
+
+```{r, echo = FALSE}
+# Clean Data of Outliers
 # clean the data
 westcoast_annualClean = outlierKD2(westcoast_annual, November.2010, rm = TRUE)
 westcoast_annualClean = outlierKD2(westcoast_annualClean, November.2016, rm = TRUE)
@@ -136,8 +154,9 @@ eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Avg.Price, rm = TRUE)
 eastcoast_annualClean = outlierKD2(eastcoast_annualClean, Price.Diff, rm = TRUE)
 ```
 
-## Transpose Data Correctly
-```{r}
+
+```{r, echo = FALSE}
+# Transpose Data Correctly
 rownames(westAnn) = westAnn$City.Code
 westAnn = westAnn[c(-1)]
 westAnn = as.data.frame(t(westAnn))
@@ -157,9 +176,8 @@ head(eastAnn)
 ```
 
 
-
-## Summary of the two regions annually
-``` {r, echo=T}
+```{r, echo = FALSE}
+# Summary of the two regions annually
 # getting the summaries to view basic stats of the data
 summary(eastcoast_annual[7:15])
 summary(westcoast_annual[7:15])
@@ -170,21 +188,8 @@ xkablesummary(westcoast_annual[c(7,10,13:15)], title="West Coast Summary Annuall
 xkablesummary(eastcoast_annual[c(7,10,13:15)], title="East Coast Summary Annually")
 ```
 
-## Finding the Outliers to Help with Graphs
-```{r}
-# checking outliers
-outWest2010 <- boxplot.stats(westcoast_annual$November.2010)$out
-outWest2016 <- boxplot.stats(westcoast_annual$November.2016)$out
-outEast2010 <- boxplot.stats(eastcoast_annual$November.2010)$out
-outEast2016 <- boxplot.stats(eastcoast_annual$November.2016)$out
-min(outWest2010)
-min(outWest2016)
-min(outEast2010)
-min(outEast2016)
-```
-
-## West Coast Annual Novemeber 2010 Start and November 2016 End Histogram
-```{r}
+# West Coast Annual Novemeber 2010 Start and November 2016 End Histogram
+```{r, echo = FALSE}
 library(ggplot2)
 ggplot(westcoast_annualClean, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 70) + 
     labs(title = "Rental Price Count on the West Coast in November 2010", x = "Rental Prices", y = "Frequency")
@@ -213,8 +218,8 @@ ggplot(westcoast_annualClean) +
     scale_color_manual(values = colors)
 ```
 
-## East Coast Annual Novemeber 2010 Start and November 2016 End Histogram
-```{r}
+# East Coast Annual Novemeber 2010 Start and November 2016 End Histogram
+```{r, echo = FALSE}
 ggplot(eastcoast_annual, aes(November.2010)) + geom_histogram(fill="red",alpha = 0.4,bins= 40) +  
     labs(title = "Rental Price Count on the East Coast from November 2010", x = "Rental Prices", y = "Frequency")
 
@@ -242,8 +247,8 @@ ggplot(eastcoast_annualClean) +
     scale_color_manual(values = colors)
 ```
 
-## Boxplot of West Coast Zillow Rental Prices 2010-2016
-```{r}
+# Boxplot of West Coast Zillow Rental Prices 2010-2016
+```{r, echo = FALSE}
 ggplot(westcoast_annual, aes(State, November.2010, color=State)) + geom_boxplot() + labs(title = "West Coast States November 2010 Rent Prices with Outliers")
 
 ggplot(westcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2010 Rent Prices without Outliers")
@@ -257,8 +262,8 @@ ggplot(westcoast_annualClean, aes(State, November.2016, color=State)) + geom_box
 ggplot(westcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire West Coast November 2016 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
 ```
 
-## Boxplot of East Coast Zillow Rental Prices 2010-2016
-```{r}
+# Boxplot of East Coast Zillow Rental Prices 2010-2016
+```{r, echo = FALSE}
 ggplot(eastcoast_annual, aes(State, November.2010, color=State)) + geom_boxplot() + labs(title = "East Coast States November 2010 Rent Prices with Outliers")
 
 ggplot(eastcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2010 Rent Prices without Outliers")
@@ -272,20 +277,20 @@ ggplot(eastcoast_annualClean, aes(State, November.2016, color=State)) + geom_box
 ggplot(eastcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2016 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
 ```
 
-## Scatter plot of West Coast
-```{r, results='asis'}
+# Scatter plot of West Coast
+```{r, echo = FALSE}
 ggplot(westcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="West Coast November 2010 and November 2016 with Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
 ggplot(westcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="West Coast November 2010 and November 2016 without Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
 ```
 
-## Scatter plot of East Coast
-```{r, results='asis'}
+# Scatter plot of East Coast
+```{r, echo = FALSE}
 ggplot(eastcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="East Coast November 2010 and November 2016 with Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
 ggplot(eastcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="East Coast November 2010 and November 2016 without Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
 ```
 
-## QQ Plots without Outliers
-```{r, results='asis'}
+# QQ Plots without Outliers
+```{r, echo = FALSE}
 qqnorm(westcoast_annualClean$November.2010, main="QQ-Plot West Coast November 2010 without Outliers")
 qqline(westcoast_annualClean$November.2010)
 
@@ -298,8 +303,8 @@ qqline(eastcoast_annualClean$November.2010)
 qqnorm(eastcoast_annualClean$November.2016, main="QQ-Plot East Coast November 2016 without Outliers")
 qqline(eastcoast_annualClean$November.2016)
 ```
-## QQ Plots with Outliers
-```{r, results='asis'}
+# QQ Plots with Outliers
+```{r, echo = FALSE}
 qqnorm(westcoast_annual$November.2010, main="QQ-Plot West Coast November 2010 with Outliers")
 qqline(westcoast_annual$November.2010)
 
@@ -314,9 +319,8 @@ qqline(eastcoast_annual$November.2016)
 ```
 
 
-
-## Format Date
-```{r, results='asis'}
+```{r, echo = FALSE}
+# Format Date
 westAnn$Date = gsub('\\.',' ',westAnn$Date)
 westAnn <- westAnn %>%
      mutate(Avg.Price = rowMeans(westAnn[2:1222]))
@@ -338,8 +342,8 @@ westAnnAvg = westAnn[-c(2:1222)]
 eastAnnAvg = eastAnn[-c(2:3989)]
 ```
 
-## T Test of First and Last Month of East and  West Coast
-```{r,results='asis'}
+# T Test of First and Last Month of East and  West Coast
+```{r, echo = FALSE}
 loadPkg("BSDA") # for z.test
 west2010_80 = t.test(x=westcoast_annualClean$November.2010, conf.level = 0.80)
 west2010_80
