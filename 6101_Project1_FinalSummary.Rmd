@@ -169,18 +169,6 @@ head(eastAnn)
 ```
 
 
-```{r, echo = FALSE}
-# Summary of the two regions annually
-# getting the summaries to view basic stats of the data
-summary(eastcoast_annual[7:15])
-summary(westcoast_annual[7:15])
-xkablesummary(westcoast_annual[7:15], title="West Coast Summary Annually")
-xkablesummary(eastcoast_annual[7:15], title="East Coast Summary Annually")
-
-xkablesummary(westcoast_annual[c(7,10,13:15)], title="West Coast Summary Annually")
-xkablesummary(eastcoast_annual[c(7,10,13:15)], title="East Coast Summary Annually")
-```
-
 ## East Coast versus West Coast
 The first question to be discussed will be the differences and comparisons of the East coast and West coast. Each region is defined by what the United States refers to as East and West coast. The East coast is made up of fourteen states and after subsetting from the original lump data frame has 3988 observations. The West coast is comprised of five states and following the creation of its own data frame the west coast has 1221 observations. We will first look at the frequency of rental prices by viewing the histograms of each region and the month of November with the year 2010 depicted in the light red color and year 2016 shown in the light blue color. For each chart shown there will be a plot including outliers and then a chart not including outliers to help with distribution. 
 
@@ -227,101 +215,32 @@ ggplot(eastcoast_annualClean) +
 
 For the East coast, it is clear again that about 1250 a month for the rental price is the most frequent price. Just like with the West coast we see that the blue, depicting the year 2016, is pulling itself up the x-axis again showing climbing rental prices. One thing to note about the East coast plots is the y-axis clearly being a larger number showing just the differences in observations between the two regions.
 
-
-# Boxplot of West Coast Zillow Rental Prices 2010-2016
-```{r, echo = FALSE}
-ggplot(westcoast_annual, aes(State, November.2010, color=State)) + geom_boxplot() + labs(title = "West Coast States November 2010 Rent Prices with Outliers")
-
+When looking at each state in the separate regions when plotted as a boxplot it is clear there is a wide variety of means and interquartile ranges. For the West coast, we see all states for year 2010 and 2016 have overlapping interquartile ranges telling us that for the West coast the prices are somewhat similar for each state. Going back to the limitations of the dataset, it’s obvious when plotted that the west coast holds two states known nationally for having higher rental prices this being Hawaii and California, and although Alaska is defined as a West coast state it was not included in the original dataset. Furthermore, the East coast region when plotted shows interquartile ranges and means that are not always overlapping with the other states in the region. This again highlights some bias of which city codes were chosen for when the original dataset was assembled.
+# West Coast 
+```{r, figures-side2, fig.show="hold", out.width="50%"}
 ggplot(westcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2010 Rent Prices without Outliers")
-
-ggplot(westcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire West Coast November 2010 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
-
-ggplot(westcoast_annual, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2016 Rent Prices with Outliers")
-
 ggplot(westcoast_annualClean, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2016 Rent Prices without Outliers")
+```
+# East Coast 
+```{r, figures-side4, fig.show="hold", out.width="50%"}
+ggplot(eastcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2010 Rent Prices without Outliers")
+ggplot(eastcoast_annualClean, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2016 Rent Prices without Outliers")
+```
 
+Clearly after plotting the coasts as a whole region in lieu of the coast’s states that the West coast generally has higher rental prices both on the November 2010 plot and on the November 2016 plot. The average of the West coast monthly rental price on November 2010 is 1534 a month with the interquartile ranging from 1171 to 1834 a month. For the November 2016 plot, the average monthly rental price is 1823 a month with a interquartile range spanning from 1294 to 2272 a month. 
+
+```{r, figures-side5, fig.show="hold", out.width="50%"}
+ggplot(westcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire West Coast November 2010 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
 ggplot(westcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="blue", outlier.shape = 9, outlier.size = 2, outlier.color = "blue") + labs(title="Entire West Coast November 2016 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
 ```
+It is apparent of the price difference between the two regions with the East coast average monthly rental price on November 2010 being 1370 a month with the interquartile range being 1082 to 1598, considerably lower than the 2010 data from the West coast. For the month of November in 2016 in the East coast the average monthly rent is 1498 with a interquartile range comprising of 1170 to 1765, yet again lower than the West's 2016 numbers.
 
-# Boxplot of East Coast Zillow Rental Prices 2010-2016
-```{r, echo = FALSE}
-ggplot(eastcoast_annual, aes(State, November.2010, color=State)) + geom_boxplot() + labs(title = "East Coast States November 2010 Rent Prices with Outliers")
-
-ggplot(eastcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2010 Rent Prices without Outliers")
-
-ggplot(eastcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2010 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
-
-ggplot(eastcoast_annual, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2016 Rent Prices with Outliers")
-
-ggplot(eastcoast_annualClean, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2016 Rent Prices without Outliers")
-
-ggplot(eastcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2016 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))
+```{r, figures-side6, fig.show="hold", out.width="50%"}
+ggplot(eastcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2010 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))	
+ggplot(eastcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2016 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))	
 ```
+Now knowing that the West coast easily coast around 200 to 300 dollars more a month, the last question to answer and to reassure that the West coast region costs more on average is to see if there was ever overlapping in means. This being done by using t-tests on the variables November 2010 and the variable November 2016. The t-test was set at two different intervals one being at 80 and the other being at 99 percent. For the time variable of November 2010 at an 80 percent confidence interval the range spanned from 1515 to 1553 for the West coast and ranged from 1362 to 1378 for the East coast. In 2016, still at 80 percent, the West coast had a range of 1798 to 1849 and the East with a range from 1489 to 1508. When setting the confidence interval at 99 percent the West has a range of 1497 to 1571 for 2010 and 1771 to 1876 for the year 2016. The East coast had a range from 1354 to 1386 for 2010 and a span of 1480 to 1517 for 2016. The results of the t-test endorse the conclusion that the West coast had a higher average monthly rental price and never had overlapping at the 80 or 99 percent confidence interval of the t-tests with their being a differnece again of roughly 200 to 300 dollars a month.
 
-# Scatter plot of West Coast
-```{r, echo = FALSE}
-ggplot(westcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="West Coast November 2010 and November 2016 with Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
-ggplot(westcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="West Coast November 2010 and November 2016 without Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
-```
-
-# Scatter plot of East Coast
-```{r, echo = FALSE}
-ggplot(eastcoast_annual, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="East Coast November 2010 and November 2016 with Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
-ggplot(eastcoast_annualClean, aes(November.2010,November.2016, color=State)) + geom_point() + labs(title="East Coast November 2010 and November 2016 without Outliers", x = "November.2010 Rent Prices", y = "November.2016 Rent Prices")
-```
-
-# QQ Plots without Outliers
-```{r, echo = FALSE}
-qqnorm(westcoast_annualClean$November.2010, main="QQ-Plot West Coast November 2010 without Outliers")
-qqline(westcoast_annualClean$November.2010)
-
-qqnorm(westcoast_annualClean$November.2016, main="QQ-Plot West Coast November 2016 without Outliers")
-qqline(westcoast_annualClean$November.2016)
-
-qqnorm(eastcoast_annualClean$November.2010, main="QQ-Plot East Coast November 2010 without Outliers")
-qqline(eastcoast_annualClean$November.2010)
-
-qqnorm(eastcoast_annualClean$November.2016, main="QQ-Plot East Coast November 2016 without Outliers")
-qqline(eastcoast_annualClean$November.2016)
-```
-# QQ Plots with Outliers
-```{r, echo = FALSE}
-qqnorm(westcoast_annual$November.2010, main="QQ-Plot West Coast November 2010 with Outliers")
-qqline(westcoast_annual$November.2010)
-
-qqnorm(westcoast_annual$November.2016, main="QQ-Plot West Coast November 2016 with Outliers")
-qqline(westcoast_annual$November.2016)
-
-qqnorm(eastcoast_annual$November.2010, main="QQ-Plot East Coast November 2010 with Outliers")
-qqline(eastcoast_annual$November.2010)
-
-qqnorm(eastcoast_annual$November.2016, main="QQ-Plot East Coast November 2016 with Outliers")
-qqline(eastcoast_annual$November.2016)
-```
-
-
-```{r, echo = FALSE}
-# Format Date
-westAnn$Date = gsub('\\.',' ',westAnn$Date)
-westAnn <- westAnn %>%
-     mutate(Avg.Price = rowMeans(westAnn[2:1222]))
-westAnn$Max = rowMaxs(as.matrix(westAnn[2:1222]))
-westAnn$Min = rowMins(as.matrix(westAnn[2:1222]))
-ggplot(westAnn, aes(Date, Avg.Price)) + geom_point() + labs(title="Average Price of the Years on the West Coast")
-
-
-eastAnn$Date = gsub('\\.',' ',eastAnn$Date)
-eastAnn <- eastAnn %>%
-     mutate(Avg.Price = rowMeans(eastAnn[2:3989]))
-eastAnn$Max = rowMaxs(as.matrix(eastAnn[2:3989]))
-eastAnn$Min = rowMins(as.matrix(eastAnn[2:3989]))
-ggplot(eastAnn, aes(Date, Avg.Price)) + geom_point() + labs(title="Average Price of the Years on the East Coast")
-
-
-
-westAnnAvg = westAnn[-c(2:1222)]
-eastAnnAvg = eastAnn[-c(2:3989)]
-```
 
 # T Test of First and Last Month of East and  West Coast
 ```{r, echo = FALSE}
