@@ -236,7 +236,7 @@ Now knowing that the West Coast easily costed around 200 to 300 dollars more tha
 
 
 
-```{r, echo = FALSE}
+```{r, echo=FALSE, results='markup'}
 # T Test of First and Last Month of East and  West Coast
 loadPkg("BSDA") # for z.test
 west2010_80 = t.test(x=westcoast_annualClean$November.2010, conf.level = 0.80)
