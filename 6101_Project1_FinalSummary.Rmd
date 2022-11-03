@@ -446,14 +446,6 @@ tukeyAoV
 ## Sketching our conclusions, and Future possible avenues
 From our plots and tests, we can see that it is very likely that there are differences in the rental price change in different countries, and thus, opens the possibility of useful predictive modeling to project where our past information could lead us. We have answered our original SMART questions in our time frame with our limited resources, and took into account the possible biases and constraints. And from the initial plots and EDA, we can see the existence of unique cities like San Francisco and NYC that we will account for in our future models.
 
-
-### APA Citations
-
-Davey, M., &amp; Walsh, M. W. (2013, July 18). Billions in debt, Detroit tumbles into insolvency. The New York Times. Retrieved November 1, 2022, from https://www.nytimes.com/2013/07/19/us/detroit-files-for-bankruptcy.html
-
-
-Karlinsky, S., &amp; Wang, K. (2021, April 1). What it will really take to create an affordable Bay Area - Spur. What It Will Really Take to Create an Affordable Bay Area. Retrieved November 2, 2022, from https://www.spur.org/sites/default/files/2021-05/SPUR_What_It_Will_Really_Take_To_Create_An_Affordable_Bay_Area_Report.pdf
-
 ```{r, results='hide', echo = FALSE}
 #This is the Break in the Code, COI to TP
 ```
@@ -549,5 +541,12 @@ From the above plot, we can make two main observations:
 1. For the top three states (PA, CA, and TX), we can see the averages and min-max range differences. In CA, because of outliers, average pricing is higher, as well as significant variation in minimum and maximum pricing. In Texas and Philadelphia, even after the number of listing are higher average is low with less deviation.
 2. For our city of interest, DC has the least number of listings but a very high average price and minimum-maximum range. A low listing count may be the reason behind the highest average in the United States.
 
+### APA Citations
 
+Davey, M., &amp; Walsh, M. W. (2013, July 18). Billions in debt, Detroit tumbles into insolvency. The New York Times. Retrieved November 1, 2022, from https://www.nytimes.com/2013/07/19/us/detroit-files-for-bankruptcy.html
+
+
+Karlinsky, S., &amp; Wang, K. (2021, April 1). What it will really take to create an affordable Bay Area - Spur. What It Will Really Take to Create an Affordable Bay Area. Retrieved November 2, 2022, from https://www.spur.org/sites/default/files/2021-05/SPUR_What_It_Will_Really_Take_To_Create_An_Affordable_Bay_Area_Report.pdf
+
+Zillow. (2017, March 3). Zillow Rent Index, 2010-present. Kaggle. Retrieved November 3, 2022, from https://www.kaggle.com/datasets/zillow/rent-index 
 
