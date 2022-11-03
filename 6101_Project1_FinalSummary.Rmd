@@ -462,9 +462,10 @@ We will start with our EDA over the total population. We will analyze patterns a
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
 ggplot(zillow, aes(x=State)) + geom_bar(colour="blue", fill="purple", alpha=0.6)
 ```
-From the above plot, we can see significant differences in the number of listings across all states. Here, we have Philadelphia (PA), California (CA), and Texas (TX) on top, whereas one of our cities of interest, i.e., the District of Columbia (DC), is on the least.  
+From the above plot, we can see significant differences in the number of listings across all states. Here, we have Philadelphia (PA), California (CA), and Texas (TX) on top, whereas one of our cities of interest, i.e., the District of Columbia (DC), is on the least. We will refer to this plot to analyze the correlation, outliers, mean, and min-max distribution of average pricing across time (November 2010 to January 2017).   
 
 ## Time-series plot for top 10 cities  
+Now we will have a time-series overview of our dataset. After removing null values, we have over 11000 observations with 74 columns (features) representing the time of pricing. From the below time-series distribution of the top 10 cities, we can look at three cities, namely Los Angeles, Dallas, and San Diego, with a significant rise in prices over the years and an overall high average price. We will only use the top 10 cities by population because of computational limitations.
 ```{r, results='markup', fig.align="center", fig.width = 12, fig.height=5}
 num_city = 10
 values=head(zillow, num_city, )
@@ -483,7 +484,8 @@ autoplot(ts,facets = NULL)+ geom_point(size=0.5) +
 
 ```
 
-## Pricing Distribution for California (Box plots)
+## Pricing Distribution for California (Box plots)  
+
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
 price = gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
 
