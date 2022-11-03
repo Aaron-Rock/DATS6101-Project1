@@ -38,33 +38,13 @@ options(scientific=T, digits = 3)
 # use scipen=999 to prevent scientific notation at all times
 ```
 
-## Summary Paper Instructions
-Write a roughly 10-page (definitely no more than 4000 words, charts do not count)
-summary of the research and EDA process of your project. The summary should be
-prepared in Rmarkdown and knitted into HTML. You may take some of the work in part
-II (such as graphs and results) to include here. They can overlap. You may also make
-modifications to your analysis based on feedback from your presentation. This summary is
-to be presented to your boss, your client, or to be submitted for publication in journals.
-Potential area of topics to address in this summary may include:
- What do we know about this dataset?
- What are the limitations of the dataset?
- How was the information gathered?
- What analysis has already been completed related to the content in your dataset?
- How did the research you gathered contribute to your question development?
- What additional information would be beneficial?
- How did your question change, if at all, after Exploratory Data Analysis?
- Based on EDA can you begin to sketch out an answer to your question?
- References (APA style preferred)
-
-
-
-## Introduction to the dataset
+# Introduction to the dataset
 The dataset we explored is on the monthly rental prices of the United States of America from 2010 to 2017 sourced from the application Zillow. This dataset was found on the website Kaggle and has no listed author. The contents of the dataset covers all types of properties such as apartments, townhomes, single family, and multi-family properties that make up the median city code price listing. It is important to note a few important facts about the dataset before going into any more detail. First off, the rental prices are not listing of physical properties but in fact is the median price of the specific city code. Secondly, the dataset does not include every geographical location in the United States and does not include the state of Alaska. Our dataset consists of 13131 observations. There are 1738 rows that are completely empty so after removing these rows we have 11348 observations and 81 variables. Our variables consist of the city code, which is the unique identification of each observation, city, state, metro, country, and population rank. The rest of the variables are time stamps of the monthly rental price of that row’s city code from November 2010 to January 2017. Zillow creates rent forecasting grounded on exclusive statistical and machine learning models also known as Zestimates. Zestimate history only goes back until November 2010 hence why the first time stamp begins on this date. Our dataset was last updated on January 2017 and will be the last variable of the overall dataset. 
   
-## Biases and Limitations
+# Biases and Limitations
 Although the dataset has 11348 substantial observations, we need to highlight limitations and biases of the dataset we have chosen to explore. As was stated above the dataset does not include every single zip code in the United States and affected certain results in our EDA. There are a plethora of websites and companies that list rental properties. A major bias is that we have chosen a dataset that limits itself to only using properties that were listed on the Zillow website, so even when talking about the changes of locations and their rental prices it is only considering the information that was listed on Zillow and used for their Zestimate.
 
-## Questions Posed
+# Questions Posed
 The goal of exploring the Zillow dataset was to answer and look into three main questions that were introduced about how time and location affected rental prices. The first question is between the east and west coast what region’s price rose the most or were they similar from the first time stamp to the last time stamp? Was there ever overlapping in pricing? Secondly, what cities saw the most change in price differentiation amongst the cities that were picked? Lastly, with the total population …………………….
 ```{r, echo = FALSE}
 #First, load the file
@@ -169,7 +149,10 @@ head(eastAnn)
 ```
 
 
-## East Coast versus West Coast
+# East Coast versus West Coast
+
+### Understanding the Histograms
+
 The first question to be discussed will be the differences and comparisons of the East coast and West coast. Each region is defined by what the United States refers to as East and West coast. The East coast is made up of fourteen states and after subsetting from the original lump data frame has 3988 observations. The West coast is comprised of five states and following the creation of its own data frame the west coast has 1221 observations. We will first look at the frequency of rental prices by viewing the histograms of each region and the month of November with the year 2010 depicted in the light red color and year 2016 shown in the light blue color. For each chart shown there will be a plot including outliers and then a chart not including outliers to help with distribution. 
 
 ```{r fig1, fig.height = 5, fig.width = 7, fig.align = "center"}
@@ -215,13 +198,19 @@ ggplot(eastcoast_annualClean) +
 
 For the East coast, it is clear again that about 1250 a month for the rental price is the most frequent price. Just like with the West coast we see that the blue, depicting the year 2016, is pulling itself up the x-axis again showing climbing rental prices. One thing to note about the East coast plots is the y-axis clearly being a larger number showing just the differences in observations between the two regions.
 
+# Results of Boxplots
+
 When looking at each state in the separate regions when plotted as a boxplot it is clear there is a wide variety of means and interquartile ranges. For the West coast, we see all states for year 2010 and 2016 have overlapping interquartile ranges telling us that for the West coast the prices are somewhat similar for each state. Going back to the limitations of the dataset, it’s obvious when plotted that the west coast holds two states known nationally for having higher rental prices this being Hawaii and California, and although Alaska is defined as a West coast state it was not included in the original dataset. Furthermore, the East coast region when plotted shows interquartile ranges and means that are not always overlapping with the other states in the region. This again highlights some bias of which city codes were chosen for when the original dataset was assembled.
-# West Coast 
+
+### West Coast 
+
 ```{r, figures-side2, fig.show="hold", out.width="50%"}
 ggplot(westcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2010 Rent Prices without Outliers")
 ggplot(westcoast_annualClean, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "West Coast States November 2016 Rent Prices without Outliers")
 ```
-# East Coast 
+
+### East Coast
+
 ```{r, figures-side4, fig.show="hold", out.width="50%"}
 ggplot(eastcoast_annualClean, aes(State, November.2010, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2010 Rent Prices without Outliers")
 ggplot(eastcoast_annualClean, aes(State, November.2016, color=State)) + geom_boxplot()+labs(title = "East Coast States November 2016 Rent Prices without Outliers")
@@ -239,11 +228,15 @@ It is apparent of the price difference between the two regions with the East coa
 ggplot(eastcoast_annualClean, aes(x=November.2010)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2010 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))	
 ggplot(eastcoast_annualClean, aes(x=November.2016)) + geom_boxplot(color="red", outlier.shape = 9, outlier.size = 2, outlier.color = "red") + labs(title="Entire East Coast November 2016 Boxplot") + scale_x_continuous(breaks=seq(500, 4000, 500))	
 ```
+
+# T-Test Results
+
 Now knowing that the West coast easily coast around 200 to 300 dollars more a month, the last question to answer and to reassure that the West coast region costs more on average is to see if there was ever overlapping in means. This being done by using t-tests on the variables November 2010 and the variable November 2016. The t-test was set at two different intervals one being at 80 and the other being at 99 percent. For the time variable of November 2010 at an 80 percent confidence interval the range spanned from 1515 to 1553 for the West coast and ranged from 1362 to 1378 for the East coast. In 2016, still at 80 percent, the West coast had a range of 1798 to 1849 and the East with a range from 1489 to 1508. When setting the confidence interval at 99 percent the West has a range of 1497 to 1571 for 2010 and 1771 to 1876 for the year 2016. The East coast had a range from 1354 to 1386 for 2010 and a span of 1480 to 1517 for 2016. The results of the t-test endorse the conclusion that the West coast had a higher average monthly rental price and never had overlapping at the 80 or 99 percent confidence interval of the t-tests with their being a differnece again of roughly 200 to 300 dollars a month.
 
 
-# T Test of First and Last Month of East and  West Coast
+
 ```{r, echo = FALSE}
+# T Test of First and Last Month of East and  West Coast
 loadPkg("BSDA") # for z.test
 west2010_80 = t.test(x=westcoast_annualClean$November.2010, conf.level = 0.80)
 west2010_80
