@@ -458,9 +458,11 @@ Karlinsky, S., &amp; Wang, K. (2021, April 1). What it will really take to creat
 ```
 
 ## State wise countplot  
+We will start with our EDA over the total population. We will analyze patterns and trends for the entire population over all the geographical areas in the USA. Below we are using a barplot (or count plot) to visualize the number of Zillow rental price listings across all the states in the dataset.  
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
 ggplot(zillow, aes(x=State)) + geom_bar(colour="blue", fill="purple", alpha=0.6)
 ```
+From the above plot, we can see significant differences in the number of listings across all states. Here, we have Philadelphia (PA), California (CA), and Texas (TX) on top, whereas one of our cities of interest, i.e., the District of Columbia (DC), is on the least.  
 
 ## Time-series plot for top 10 cities  
 ```{r, results='markup', fig.align="center", fig.width = 12, fig.height=5}
@@ -564,25 +566,6 @@ ggplot(states[!is.na(states$Mean),],
 
 ```
 
-## Hex plot with number of counties for top 5 cities
-```{r, results='markup', fig.align="center", fig.width = 10, fig.height=12}
-
-num_city = 5
-values=head(zillow, num_city, )
-values=data.frame(t(as.matrix(values[,7:81])))
-colnames(values)=zillow[1:num_city,2]
-
-date = seq(as.Date("2010/11/01"), as.Date("2017/01/31"), "month")
-date = as.yearmon(date)
-ts=zoo(values,order.by = date)
-values=fortify(ts)
-values$Index=as.Date(values$Index)
-
-autoplot(ts,facets = NULL)+ geom_hex(size=1.5, alpha=0.7) + scale_fill_viridis_c() + 
-  guides(fill = guide_colourbar(barwidth = 0.7, barheight = 15)) +
-  theme_minimal()+ 
-  labs(x="Time",y="Price")
-```
 
 
 
