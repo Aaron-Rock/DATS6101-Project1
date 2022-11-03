@@ -515,7 +515,9 @@ ggplot(price[price$State == "PA" & !is.na(price$Metro),]) +
 ```
 We can analyze outliers for average price over the years from the above two boxplots. From the boxplot of California, we can observe significant outliers like San Francisco, San Diego, and Los Angeles. These outliers will result in high average pricing all over CA, even after many listings. In PA, we have fewer outliers and a low average price that will explain the minimum-maximum distribution.  
 
-## Average rent pricing with minimum maximum deviation
+## Average rent pricing with minimum maximum deviation  
+We will make a point plot for the average price over the entire population of all the states spreading across minimum and maximum ranges of pricing for years from November 2010 to January 2017. Now we will use all the above analysis from barplots and boxplots here.   
+
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 8}
 # Create variable of numeric year
 price$Year = as.character(price$Month)
@@ -543,7 +545,9 @@ ggplot(states[!is.na(states$Mean),],
 
 ```
 
-
+From the above plot, we can make two main observations:  
+1. For the top three states (PA, CA, and TX), we can see the averages and min-max range differences. In CA, because of outliers, average pricing is higher, as well as significant variation in minimum and maximum pricing. In Texas and Philadelphia, even after the number of listing are higher average is low with less deviation.
+2. For our city of interest, DC has the least number of listings but a very high average price and minimum-maximum range. A low listing count may be the reason behind the highest average in the United States.
 
 
 
