@@ -485,8 +485,10 @@ autoplot(ts,facets = NULL)+ geom_point(size=0.5) +
 
 ```
 
-## Pricing Distribution for California (Box plots)  
+Now we will visualize pricing distribution for top two states with highest listings, Philadelphia and California.  
 
+## Pricing Distribution for California and Philadelphia(Box plots)  
+We will go with boxplots for getting insights on outliers. Below boxplot shows the average prices of all years for all the cities/counties in California.  
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
 price = gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
 
@@ -499,7 +501,7 @@ ggplot(price[price$State == "CA" & !is.na(price$Metro),]) +
 
 ```
 
-## Pricing Distribution for Philadelphia (Box plots)
+Below boxplot shows the average prices of all years for all the cities/counties in Philadelphia.    
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height=5}
 price = gather(data = zillow, "Month", "Price", 7:81, factor_key = T)
 
@@ -511,35 +513,7 @@ ggplot(price[price$State == "PA" & !is.na(price$Metro),]) +
   coord_flip()
 
 ```
-
-## Dallas county rent prices (point plot across time)
-```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 7}
-# price
-ggplot(price[price$County == "Dallas" & !is.na(price$City),], 
-               aes(y = fct_rev(City), x = Price)) +
-  labs(title = "Zillow | Dallas County Rent Prices",
-       subtitle = "2010 - 2017", 
-       x = "Price", y = "Dallas County", 
-       colour = "Time") +
-  geom_point(shape = 20, alpha = 0.4, size = 3, aes(color = Month)) +
-  scale_color_discrete(l = 45, h = c(30, 330)) 
-
-```
-
-## Los Angeles county rent prices (point plot across time)
-```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 15}
-
-ggplot(price[price$County == "Los Angeles" & !is.na(price$City),], 
-               aes(y = fct_rev(City), x = Price)) +
-  labs(title = "Zillow | Los Angeles County Rent Prices",
-       subtitle = "2010 - 2017", 
-       x = "Price", y = "LA County", 
-       colour = "Time") +
-  geom_point(shape = 16, alpha = 0.4, size = 3, aes(color = Month)) +
-  scale_colour_viridis_d()
-  # scale_colour_gradientn(colours=rainbow(4))
-
-```
+We can analyze outliers for average price over the years from the above two boxplots. From the boxplot of California, we can observe significant outliers like San Francisco, San Diego, and Los Angeles. These outliers will result in high average pricing all over CA, even after many listings. In PA, we have fewer outliers and a low average price that will explain the minimum-maximum distribution.  
 
 ## Average rent pricing with minimum maximum deviation
 ```{r, results='markup', fig.align="center", fig.width = 10, fig.height = 8}
